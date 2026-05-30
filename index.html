@@ -17,20 +17,16 @@
         :root {
             --brand-black: #111111;
             --brand-gold: #c5a059;
-            --brand-gold-hover: #b38f46;
             --brand-gray-light: #f4f4f6;
             --brand-gray-medium: #cbd5e1;
-            --brand-gray-dark: #475569;
             --accent-blue: #1a73e8;
-            --accent-red: #d93025;
             --accent-green: #188038;
-            --text-dark: #1f2937;
+            --accent-red: #d93025;
         }
 
         body {
             font-family: 'Roboto', sans-serif;
             background-color: var(--brand-gray-light);
-            color: var(--text-dark);
             height: 100vh;
             display: flex;
             flex-direction: column;
@@ -107,7 +103,6 @@
             border: 1px solid var(--brand-gold);
             color: var(--brand-gold);
             font-weight: bold;
-            font-size: 0.8rem;
         }
 
         .mobile-toggle-btn {
@@ -143,16 +138,7 @@
             z-index: 200;
         }
 
-        .sidebar-profesor.mobile-open {
-            transform: translateX(0);
-        }
-
-        .profesor-lock {
-            border: 1px solid var(--brand-gold);
-            padding: 0.8rem;
-            border-radius: 12px;
-            background: #faf8f5;
-        }
+        .sidebar-profesor.mobile-open { transform: translateX(0); }
 
         /* Área central: visor táctil mejorado */
         .canvas-area {
@@ -193,7 +179,6 @@
             border-radius: 40px;
             font-size: 0.8rem;
             font-weight: 600;
-            color: var(--brand-gray-dark);
         }
 
         /* Viewport que contiene el tablero con zoom+pan */
@@ -239,13 +224,12 @@
             pointer-events: auto;
         }
 
-        /* Placeholder mientras no hay imagen */
         .placeholder-vacio {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            color: var(--brand-gray-dark);
+            color: #475569;
             text-align: center;
             background: #e2e8f0;
             border-radius: 24px;
@@ -254,7 +238,7 @@
             height: 100%;
         }
 
-        /* Controles flotantes estudiante (modernos) */
+        /* Controles flotantes estudiante */
         .floating-mode-container {
             position: absolute;
             bottom: 20px;
@@ -288,7 +272,7 @@
             height: 65px;
             border-radius: 50%;
             background: white;
-            color: var(--brand-gray-dark);
+            color: #475569;
             border: none;
             box-shadow: 0 6px 14px rgba(0,0,0,0.2);
             display: flex;
@@ -297,23 +281,14 @@
             justify-content: center;
             cursor: pointer;
             transition: all 0.2s ease;
-            font-weight: bold;
         }
 
-        .btn-floating-action span {
-            font-size: 1.8rem;
-        }
-
-        .btn-floating-action label {
-            font-size: 0.65rem;
-            font-weight: bold;
-            margin-top: 2px;
-        }
+        .btn-floating-action span { font-size: 1.8rem; }
+        .btn-floating-action label { font-size: 0.65rem; font-weight: bold; margin-top: 2px; }
 
         .btn-floating-action.active-navegar {
             background: var(--accent-blue) !important;
             color: white !important;
-            transform: scale(1.02);
         }
 
         .btn-floating-action.active-marcar {
@@ -325,7 +300,6 @@
         .btn-reset-view {
             background: #374151;
             color: white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
 
         /* Panel historial */
@@ -339,9 +313,7 @@
             z-index: 200;
         }
 
-        .sidebar-historial.mobile-open {
-            transform: translateX(0);
-        }
+        .sidebar-historial.mobile-open { transform: translateX(0); }
 
         .historial-header {
             padding: 1rem;
@@ -375,23 +347,13 @@
             flex-direction: column;
             gap: 5px;
         }
-
-        .form-group label {
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: var(--brand-gray-dark);
-            text-transform: uppercase;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
+        .form-group label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+        .form-group input, .form-group select, .form-group textarea {
             padding: 0.6rem;
             border: 1px solid var(--brand-gray-medium);
             border-radius: 12px;
             font-size: 0.85rem;
         }
-
         .btn-main {
             background: var(--brand-black);
             color: white;
@@ -404,24 +366,11 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            transition: 0.1s;
         }
-
-        .btn-action-blue {
-            background: var(--accent-blue);
-        }
-
-        .btn-action-green {
-            background: var(--accent-green);
-        }
-
-        .btn-danger {
-            background: var(--accent-red);
-        }
-
-        .hidden {
-            display: none !important;
-        }
+        .btn-action-blue { background: var(--accent-blue); }
+        .btn-action-green { background: var(--accent-green); }
+        .btn-danger { background: var(--accent-red); }
+        .hidden { display: none !important; }
 
         @keyframes pulse {
             0% { box-shadow: 0 0 0 0 rgba(24, 128, 56, 0.6); }
@@ -429,11 +378,9 @@
             100% { box-shadow: 0 0 0 0 rgba(24, 128, 56, 0); }
         }
 
-        /* Responsive: móvil */
         @media (max-width: 900px) {
-            .sidebar-profesor {
+            .sidebar-profesor, .sidebar-historial {
                 position: absolute;
-                left: 0;
                 top: 0;
                 bottom: 0;
                 transform: translateX(-100%);
@@ -441,25 +388,13 @@
                 max-width: 300px;
             }
             .sidebar-historial {
-                position: absolute;
-                right: 0;
-                top: 0;
-                bottom: 0;
                 transform: translateX(100%);
-                width: 80%;
-                max-width: 280px;
+                right: 0;
+                left: auto;
             }
-            .mobile-toggle-btn {
-                display: flex;
-            }
-            .btn-floating-action {
-                width: 56px;
-                height: 56px;
-            }
-            .floating-mode-container {
-                bottom: 16px;
-                right: 16px;
-            }
+            .mobile-toggle-btn { display: flex; }
+            .btn-floating-action { width: 56px; height: 56px; }
+            .floating-mode-container { bottom: 16px; right: 16px; }
         }
     </style>
 </head>
@@ -468,25 +403,10 @@
         <div class="auth-card">
             <h2>PROGRAMA <span>PUENTE</span></h2>
             <form id="form-ingreso">
-                <div class="form-group">
-                    <label>Tu nombre / Pseudónimo</label>
-                    <input type="text" id="input-nombre" placeholder="Ej. Explorador" required>
-                </div>
-                <div class="form-group">
-                    <label>Rol</label>
-                    <select id="input-rol">
-                        <option value="estudiante">Estudiante</option>
-                        <option value="profesor">Profesor / Moderador</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Código de Sala</label>
-                    <input type="text" id="input-sala" placeholder="SALA-PROFE" required style="text-transform: uppercase;">
-                </div>
-                <div id="wrapper-clave-profe" class="form-group hidden">
-                    <label>Contraseña Profesor</label>
-                    <input type="password" id="input-clave" placeholder="Clave">
-                </div>
+                <div class="form-group"><label>Tu nombre</label><input type="text" id="input-nombre" required></div>
+                <div class="form-group"><label>Rol</label><select id="input-rol"><option value="estudiante">Estudiante</option><option value="profesor">Profesor</option></select></div>
+                <div class="form-group"><label>Código de Sala</label><input type="text" id="input-sala" placeholder="SALA-PROFE" required style="text-transform: uppercase;"></div>
+                <div id="wrapper-clave-profe" class="form-group hidden"><label>Contraseña</label><input type="password" id="input-clave"></div>
                 <button type="submit" class="btn-main btn-action-blue" style="width:100%;">Ingresar</button>
             </form>
         </div>
@@ -500,34 +420,26 @@
         </div>
         <div class="session-info">
             <span class="room-badge">Sala: <span id="label-sala-activa">---</span></span>
-            <button id="btn-toggle-historial" class="mobile-toggle-btn"><span class="material-symbols-outlined" style="color:var(--accent-blue)">history</span></button>
+            <button id="btn-toggle-historial" class="mobile-toggle-btn"><span class="material-symbols-outlined">history</span></button>
         </div>
     </header>
 
     <div class="main-layout">
         <aside id="panel-profesor" class="sidebar-profesor hidden">
-            <div class="profesor-lock">
-                <span class="material-symbols-outlined" style="vertical-align:middle;">admin_panel_settings</span> MODERACIÓN
-            </div>
-            <div class="form-group">
-                <label>📸 1. Sopa (PNG, JPG, PDF)</label>
-                <input type="file" id="input-archivo-crucigrama" accept="image/*, application/pdf">
-            </div>
-            <div id="box-confirmacion-archivo" class="confirm-upload-box hidden" style="background:#f9f7f3; border-radius:16px; padding:8px;">
+            <div class="profesor-lock"><span class="material-symbols-outlined">admin_panel_settings</span> MODERACIÓN</div>
+            <div class="form-group"><label>📸 Sopa (PNG, JPG, PDF)</label><input type="file" id="input-archivo-crucigrama" accept="image/*, application/pdf"></div>
+            <div id="box-confirmacion-archivo" class="hidden" style="background:#f9f7f3; border-radius:16px; padding:8px;">
                 <div style="font-size:0.8rem;" id="nombre-archivo-pendiente"></div>
-                <button id="btn-confirmar-carga" class="btn-main btn-action-green" style="padding:6px;">Confirmar archivo</button>
+                <button id="btn-confirmar-carga" class="btn-main btn-action-green" style="padding:6px;">Confirmar</button>
             </div>
-            <div class="form-group">
-                <label>📝 2. Palabras (separadas por comas)</label>
-                <textarea id="input-pistas" rows="2" placeholder="Ej. FUERZA, MASA, GRAVEDAD"></textarea>
-            </div>
+            <div class="form-group"><label>📝 Palabras (separadas por comas)</label><textarea id="input-pistas" rows="2" placeholder="Ej. FUERZA, MASA, GRAVEDAD"></textarea></div>
             <button id="btn-subir-juego" class="btn-main btn-action-blue">Publicar Tablero</button>
             <button id="btn-limpiar-trazos" class="btn-main btn-danger">Limpiar Marcas</button>
         </aside>
 
         <main class="canvas-area">
             <div id="pistas-display-area" class="pistas-container hidden">
-                <div style="font-weight:bold; font-size:0.75rem;">🔍 PALABRAS A ENCONTRAR:</div>
+                <div style="font-weight:bold;">🔍 PALABRAS A ENCONTRAR:</div>
                 <div id="pistas-lista-tags" class="pistas-flex"></div>
             </div>
 
@@ -540,26 +452,16 @@
                 </div>
                 <div id="placeholder-vacio" class="placeholder-vacio">
                     <span class="material-symbols-outlined" style="font-size:3rem;">search</span>
-                    <p style="margin-top:8px;">Docente compartirá la sopa de letras en breve...</p>
+                    <p>Esperando que el docente publique la sopa...</p>
                 </div>
             </div>
 
-            <!-- Controles avanzados para estudiantes (móvil + escritorio) -->
             <div id="controles-flotantes-estudiante" class="floating-mode-container hidden">
                 <div id="indicador-modo-texto" class="btn-mode-indicator">✋ Modo: Navegar</div>
                 <div class="student-actions-group">
-                    <button id="btn-modo-navegar" class="btn-floating-action active-navegar" title="Mover y hacer zoom">
-                        <span class="material-symbols-outlined">pan_tool</span>
-                        <label>Mover</label>
-                    </button>
-                    <button id="btn-modo-marcar" class="btn-floating-action" title="Dibujar sobre la sopa">
-                        <span class="material-symbols-outlined">edit</span>
-                        <label>Marcar</label>
-                    </button>
-                    <button id="btn-reset-vista" class="btn-floating-action btn-reset-view" title="Ajustar al dispositivo">
-                        <span class="material-symbols-outlined">fit_screen</span>
-                        <label>Ajustar</label>
-                    </button>
+                    <button id="btn-modo-navegar" class="btn-floating-action active-navegar"><span class="material-symbols-outlined">pan_tool</span><label>Mover</label></button>
+                    <button id="btn-modo-marcar" class="btn-floating-action"><span class="material-symbols-outlined">edit</span><label>Marcar</label></button>
+                    <button id="btn-reset-vista" class="btn-floating-action btn-reset-view"><span class="material-symbols-outlined">fit_screen</span><label>Ajustar</label></button>
                 </div>
             </div>
         </main>
@@ -584,7 +486,6 @@
             messagingSenderId: "383416484351",
             appId: "1:383416484351:web:ca37a09d3bdf8fae8a6088"
         };
-
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
@@ -596,17 +497,16 @@
         let cacheTrazosServidor = [];
         let archivoSeleccionadoLocal = null;
 
-        // Variables de navegación (zoom/pan mejorado)
-        let modoActual = "navegar"; // navegar o marcar
+        // Variables de navegación mejoradas
+        let modoActual = "navegar";
         let scale = 1;
         let panX = 0, panY = 0;
         let estaMoviendoVista = false;
         let startPanX, startPanY;
         let distInicialPinch = 0;
         let imageNaturalWidth = 1, imageNaturalHeight = 1;
-        let viewportRect = null;
         
-        // Referencias DOM
+        // DOM elements
         const authScreen = document.getElementById('auth-screen');
         const formIngreso = document.getElementById('form-ingreso');
         const selectRol = document.getElementById('input-rol');
@@ -620,70 +520,107 @@
         const listaLogs = document.getElementById('lista-logs');
         const pistasDisplayArea = document.getElementById('pistas-display-area');
         const pistasListaTags = document.getElementById('pistas-lista-tags');
-        const controlesFlotantesEstudiante = document.getElementById('controles-flotantes-estudiante');
+        const controlesFlotantes = document.getElementById('controles-flotantes-estudiante');
         const btnModoNavegar = document.getElementById('btn-modo-navegar');
         const btnModoMarcar = document.getElementById('btn-modo-marcar');
         const btnResetVista = document.getElementById('btn-reset-vista');
-        const indicadorModoTexto = document.getElementById('indicador-modo-texto');
+        const indicadorModo = document.getElementById('indicador-modo-texto');
         const viewportPadre = document.getElementById('viewport-padre');
-        const scrollerTransformable = document.getElementById('scroller-transformable');
+        const scroller = document.getElementById('scroller-transformable');
         const sidebarHistorial = document.getElementById('sidebar-historial');
 
-        // --- FUNCIÓN CLAVE: AJUSTE DINÁMICO AL DISPOSITIVO (Adaptación total) ---
-        function ajustarVistaAlContenedor() {
-            if (!boardWrapper.classList.contains('hidden') && imageNaturalWidth > 0 && imageNaturalHeight > 0) {
-                const wrapper = viewportPadre;
-                const wrapperWidth = wrapper.clientWidth;
-                const wrapperHeight = wrapper.clientHeight;
-                if (wrapperWidth === 0 || wrapperHeight === 0) return;
-                
-                // Calculamos escala para que quepa dentro del viewport (con márgenes suaves)
-                const scaleX = (wrapperWidth - 20) / imageNaturalWidth;
-                const scaleY = (wrapperHeight - 20) / imageNaturalHeight;
-                let newScale = Math.min(scaleX, scaleY);
-                newScale = Math.min(2.5, Math.max(0.5, newScale));
-                
-                scale = newScale;
-                // Centrar la imagen en el viewport
-                const scaledWidth = imageNaturalWidth * scale;
-                const scaledHeight = imageNaturalHeight * scale;
-                panX = (wrapperWidth - scaledWidth) / 2;
-                panY = (wrapperHeight - scaledHeight) / 2;
-                
-                aplicarTransformacionesVista();
-            }
-        }
-        
-        function aplicarTransformacionesVista() {
-            scrollerTransformable.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
-        }
-        
-        function resetearVistaCompleta() {
-            ajustarVistaAlContenedor();
+        // --- FUNCIONES DE AJUSTE Y LIMITACIÓN DE PANNING ---
+        function clampPan() {
+            if (!viewportPadre || imageNaturalWidth === 0) return;
+            const wrapperW = viewportPadre.clientWidth;
+            const wrapperH = viewportPadre.clientHeight;
+            const scaledW = imageNaturalWidth * scale;
+            const scaledH = imageNaturalHeight * scale;
+            // Permitir que la imagen salga hasta un 30% fuera de la vista, pero sin perderla totalmente
+            const maxPanX = Math.max(0, (scaledW - wrapperW) / 2) + scaledW * 0.15;
+            const minPanX = Math.min(0, (wrapperW - scaledW) / 2) - scaledW * 0.15;
+            const maxPanY = Math.max(0, (scaledH - wrapperH) / 2) + scaledH * 0.15;
+            const minPanY = Math.min(0, (wrapperH - scaledH) / 2) - scaledH * 0.15;
+            panX = Math.min(maxPanX, Math.max(minPanX, panX));
+            panY = Math.min(maxPanY, Math.max(minPanY, panY));
         }
 
-        // Redibujado de trazados + actualización canvas dimensiones exactas
+        function aplicarTransformaciones() {
+            scroller.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+        }
+
+        // Función clave: ajustar la imagen al viewport (fit) manteniendo relación de aspecto
+        function ajustarVistaAlContenedor() {
+            if (!boardWrapper.classList.contains('hidden') && imageNaturalWidth > 0 && imageNaturalHeight > 0) {
+                const wrapperW = viewportPadre.clientWidth;
+                const wrapperH = viewportPadre.clientHeight;
+                if (wrapperW === 0 || wrapperH === 0) return;
+                // Calcular escala para que entre completamente
+                const scaleX = wrapperW / imageNaturalWidth;
+                const scaleY = wrapperH / imageNaturalHeight;
+                let newScale = Math.min(scaleX, scaleY);
+                newScale = Math.min(3, Math.max(0.4, newScale)); // rango aceptable
+                scale = newScale;
+                // Centrar la imagen en el viewport
+                const scaledW = imageNaturalWidth * scale;
+                const scaledH = imageNaturalHeight * scale;
+                panX = (wrapperW - scaledW) / 2;
+                panY = (wrapperH - scaledH) / 2;
+                clampPan();
+                aplicarTransformaciones();
+            }
+        }
+
+        // Zoom incremental con punto central (opcional, pero se usa desde botones si se desea)
+        function zoomEn(centroRelativo) {
+            const oldScale = scale;
+            let newScale = Math.min(4, scale * 1.2);
+            if (newScale === oldScale) return;
+            scale = newScale;
+            // Ajustar pan para mantener el punto bajo el cursor (si se pasa)
+            if (centroRelativo && viewportPadre) {
+                const wrapperRect = viewportPadre.getBoundingClientRect();
+                const px = centroRelativo.clientX - wrapperRect.left;
+                const py = centroRelativo.clientY - wrapperRect.top;
+                const xAnt = (px - panX) / oldScale;
+                const yAnt = (py - panY) / oldScale;
+                panX = px - xAnt * scale;
+                panY = py - yAnt * scale;
+            }
+            clampPan();
+            aplicarTransformaciones();
+        }
+
+        function zoomOut() {
+            const oldScale = scale;
+            let newScale = Math.max(0.4, scale / 1.2);
+            if (newScale === oldScale) return;
+            scale = newScale;
+            clampPan();
+            aplicarTransformaciones();
+        }
+
+        // Redimensionar canvas y redibujar trazos
         function redimensionarCanvasNatural() {
             if (!crucigramaImg.complete || imageNaturalWidth === 0) return;
             canvas.width = imageNaturalWidth;
             canvas.height = imageNaturalHeight;
             canvas.style.width = `${imageNaturalWidth}px`;
             canvas.style.height = `${imageNaturalHeight}px`;
-            redibujarLienzoCompleto(cacheTrazosServidor);
+            redibujarTodosLosTrazos();
         }
-        
-        function redibujarLienzoCompleto(trazos) {
-            if (!ctx) return;
+
+        function redibujarTodosLosTrazos() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            trazos.forEach(t => dibujarLineaEnPantalla(t.puntos, t.color));
+            cacheTrazosServidor.forEach(t => dibujarLinea(t.puntos, t.color));
         }
-        
-        function dibujarLineaEnPantalla(puntos, color) {
+
+        function dibujarLinea(puntos, color) {
             if (!puntos || puntos.length < 2) return;
             ctx.beginPath();
-            ctx.globalAlpha = 0.65;
+            ctx.globalAlpha = 0.7;
             ctx.strokeStyle = color;
-            ctx.lineWidth = Math.max(6, canvas.width * 0.018);
+            ctx.lineWidth = Math.max(5, canvas.width * 0.018);
             ctx.lineCap = "round";
             ctx.lineJoin = "round";
             ctx.moveTo(puntos[0].x * canvas.width, puntos[0].y * canvas.height);
@@ -692,83 +629,76 @@
             }
             ctx.stroke();
         }
-        
-        // --- Preparar imagen y aplicar adaptación al cargar ---
+
+        // Inicialización de la imagen al cargar desde Firebase
         function inicializarBoardConImagen(urlImagen) {
             crucigramaImg.src = urlImagen;
             crucigramaImg.onload = () => {
                 imageNaturalWidth = crucigramaImg.naturalWidth;
                 imageNaturalHeight = crucigramaImg.naturalHeight;
-                // Ajustar tamaño del contenedor board-wrapper
                 boardWrapper.style.width = `${imageNaturalWidth}px`;
                 boardWrapper.style.height = `${imageNaturalHeight}px`;
                 redimensionarCanvasNatural();
-                // Ajuste de vista automático (adaptación total a pantalla)
                 ajustarVistaAlContenedor();
             };
         }
-        
-        // limpieza de interfaz
+
         function limpiarInterfazTablero() {
             boardWrapper.classList.add('hidden');
             placeholderVacio.classList.remove('hidden');
             crucigramaImg.src = "";
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             cacheTrazosServidor = [];
-            imageNaturalWidth = 0; imageNaturalHeight = 0;
+            imageNaturalWidth = 0;
         }
-        
-        // Captura de eventos táctiles con modo marcaje/navegación
+
+        // --- EVENTOS DE DIBUJO (marcar) ---
         function obtenerPuntoRelativoCanvas(e) {
             const rect = canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             let x = (clientX - rect.left) / rect.width;
             let y = (clientY - rect.top) / rect.height;
-            x = Math.min(1, Math.max(0, x));
-            y = Math.min(1, Math.max(0, y));
-            return { x, y };
+            return { x: Math.min(1, Math.max(0, x)), y: Math.min(1, Math.max(0, y)) };
         }
-        
+
         function arrancarTrazo(e) {
             if (modoActual !== "marcar") return;
             e.preventDefault();
             estaDibujando = true;
             trazoActual = [obtenerPuntoRelativoCanvas(e)];
         }
-        
-        function arrastrarTrazo(e) {
+
+        function dibujarTrazoLocal(e) {
             if (!estaDibujando || modoActual !== "marcar") return;
             e.preventDefault();
             const p = obtenerPuntoRelativoCanvas(e);
             trazoActual.push(p);
-            redibujarLienzoCompleto(cacheTrazosServidor);
-            dibujarLineaEnPantalla(trazoActual, usuarioLocal.color);
+            redibujarTodosLosTrazos();
+            dibujarLinea(trazoActual, usuarioLocal.color);
         }
-        
-        async function guardarTrazoFinal() {
+
+        async finalizarTrazo() {
             if (!estaDibujando || modoActual !== "marcar") return;
             estaDibujando = false;
             if (!trazoActual || trazoActual.length < 2) return;
             const salaRef = doc(db, "salas_crucigramas", salaId);
-            const stamp = new Date().toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit', second:'2-digit' });
-            try {
-                await updateDoc(salaRef, {
-                    trazos: arrayUnion({ usuario: usuarioLocal.nombre, color: usuarioLocal.color, puntos: [...trazoActual] }),
-                    historial: arrayUnion({ usuario: usuarioLocal.nombre, hora: stamp, color: usuarioLocal.color })
-                });
-            } catch(err) { console.error(err); }
+            const hora = new Date().toLocaleTimeString('es-BO', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+            await updateDoc(salaRef, {
+                trazos: arrayUnion({ usuario: usuarioLocal.nombre, color: usuarioLocal.color, puntos: [...trazoActual] }),
+                historial: arrayUnion({ usuario: usuarioLocal.nombre, hora: hora, color: usuarioLocal.color })
+            });
             trazoActual = [];
         }
-        
+
         canvas.addEventListener('mousedown', arrancarTrazo);
-        canvas.addEventListener('mousemove', arrastrarTrazo);
-        window.addEventListener('mouseup', guardarTrazoFinal);
+        canvas.addEventListener('mousemove', dibujarTrazoLocal);
+        window.addEventListener('mouseup', finalizarTrazo);
         canvas.addEventListener('touchstart', arrancarTrazo, { passive: false });
-        canvas.addEventListener('touchmove', arrastrarTrazo, { passive: false });
-        canvas.addEventListener('touchend', guardarTrazoFinal);
-        
-        // navegación con mouse/touch: modo mover vista
+        canvas.addEventListener('touchmove', dibujarTrazoLocal, { passive: false });
+        canvas.addEventListener('touchend', finalizarTrazo);
+
+        // --- EVENTOS DE NAVEGACIÓN (pan y zoom) ---
         viewportPadre.addEventListener('mousedown', (e) => {
             if (modoActual === "navegar") {
                 estaMoviendoVista = true;
@@ -780,12 +710,13 @@
             if (modoActual === "navegar" && estaMoviendoVista) {
                 panX = e.clientX - startPanX;
                 panY = e.clientY - startPanY;
-                aplicarTransformacionesVista();
+                clampPan();
+                aplicarTransformaciones();
             }
         });
         window.addEventListener('mouseup', () => { estaMoviendoVista = false; });
-        
-        // Gestos táctiles: pan y pinch
+
+        // Touch: pan y pinch zoom
         viewportPadre.addEventListener('touchstart', (e) => {
             if (modoActual === "navegar") {
                 if (e.touches.length === 1) {
@@ -806,122 +737,121 @@
                 if (e.touches.length === 1 && estaMoviendoVista) {
                     panX = e.touches[0].clientX - startPanX;
                     panY = e.touches[0].clientY - startPanY;
-                    aplicarTransformacionesVista();
+                    clampPan();
+                    aplicarTransformaciones();
                 } else if (e.touches.length === 2) {
                     const distActual = Math.hypot(
                         e.touches[0].clientX - e.touches[1].clientX,
                         e.touches[0].clientY - e.touches[1].clientY
                     );
                     const factor = distActual / distInicialPinch;
-                    scale = Math.max(0.5, Math.min(4, scale * factor));
+                    const newScale = Math.min(4, Math.max(0.4, scale * factor));
+                    if (newScale !== scale) {
+                        // Calcular punto medio para zoom centrado
+                        const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+                        const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                        const wrapperRect = viewportPadre.getBoundingClientRect();
+                        const px = centerX - wrapperRect.left;
+                        const py = centerY - wrapperRect.top;
+                        const xAnt = (px - panX) / scale;
+                        const yAnt = (py - panY) / scale;
+                        scale = newScale;
+                        panX = px - xAnt * scale;
+                        panY = py - yAnt * scale;
+                        clampPan();
+                        aplicarTransformaciones();
+                    }
                     distInicialPinch = distActual;
-                    aplicarTransformacionesVista();
                 }
             }
         }, { passive: true });
         viewportPadre.addEventListener('touchend', () => { estaMoviendoVista = false; });
-        
-        // --- Botones de modo y reset vista ---
+
+        // Botones de modo y reset
         btnModoNavegar.addEventListener('click', () => {
             modoActual = "navegar";
             btnModoNavegar.classList.add('active-navegar');
             btnModoMarcar.classList.remove('active-marcar');
-            indicadorModoTexto.innerHTML = "✋ Modo: Navegar / Zoom";
+            indicadorModo.innerHTML = "✋ Modo: Navegar / Zoom";
         });
         btnModoMarcar.addEventListener('click', () => {
             modoActual = "marcar";
             btnModoMarcar.classList.add('active-marcar');
             btnModoNavegar.classList.remove('active-navegar');
-            indicadorModoTexto.innerHTML = "✏️ Modo: Marcar palabra";
+            indicadorModo.innerHTML = "✏️ Modo: Marcar palabra";
         });
-        btnResetVista.addEventListener('click', () => {
-            ajustarVistaAlContenedor();
-        });
-        
-        // Escucha cambios de tamaño (responsivo en tiempo real)
+        btnResetVista.addEventListener('click', () => { ajustarVistaAlContenedor(); });
+
         window.addEventListener('resize', () => {
-            if (boardWrapper && !boardWrapper.classList.contains('hidden')) {
-                ajustarVistaAlContenedor();
-            }
+            if (boardWrapper && !boardWrapper.classList.contains('hidden')) ajustarVistaAlContenedor();
         });
-        
-        // --- Firebase y Sincronización ---
-        selectRol.addEventListener('change', (e) => {
-            wrapperClave.classList.toggle('hidden', e.target.value !== 'profesor');
-        });
-        
+
+        // --- AUTENTICACIÓN Y FIRESTORE ---
+        selectRol.addEventListener('change', () => wrapperClave.classList.toggle('hidden', selectRol.value !== 'profesor'));
         formIngreso.addEventListener('submit', async (e) => {
             e.preventDefault();
             const nombre = document.getElementById('input-nombre').value.trim();
             const rol = selectRol.value;
-            const salaInput = document.getElementById('input-sala').value.trim().toUpperCase();
-            if (rol === 'profesor' && document.getElementById('input-clave').value !== 'mejia') { alert("Clave incorrecta."); return; }
+            const sala = document.getElementById('input-sala').value.trim().toUpperCase();
+            if (rol === 'profesor' && document.getElementById('input-clave').value !== 'mejia') { alert("Clave incorrecta"); return; }
             usuarioLocal = { nombre, rol, color: `hsl(${Math.abs(nombre.split('').reduce((a,b)=>a+b.charCodeAt(0),0)%360)}, 85%, 55%)` };
-            salaId = salaInput;
+            salaId = sala;
             document.getElementById('label-sala-activa').innerText = salaId;
             authScreen.classList.add('hidden');
             if (rol === 'profesor') {
                 panelProfesor.classList.remove('hidden');
                 document.getElementById('btn-toggle-profesor').classList.remove('hidden');
             } else {
-                controlesFlotantesEstudiante.classList.remove('hidden');
+                controlesFlotantes.classList.remove('hidden');
             }
-            conectarSalaFirestore();
+            conectarSala();
         });
-        
-        function conectarSalaFirestore() {
+
+        function conectarSala() {
             const salaRef = doc(db, "salas_crucigramas", salaId);
             onSnapshot(salaRef, (docSnap) => {
                 if (!docSnap.exists()) { setDoc(salaRef, { imagenBase64: "", pistas: [], trazos: [], historial: [] }); limpiarInterfazTablero(); return; }
                 const data = docSnap.data();
-                // Mostrar pistas
-                if (data.pistas && data.pistas.length) {
+                if (data.pistas?.length) {
                     pistasDisplayArea.classList.remove('hidden');
                     pistasListaTags.innerHTML = data.pistas.map(p => `<span class="pista-tag">${p}</span>`).join('');
                 } else pistasDisplayArea.classList.add('hidden');
-                
+
                 if (data.imagenBase64 && data.imagenBase64 !== "") {
                     placeholderVacio.classList.add('hidden');
                     boardWrapper.classList.remove('hidden');
                     cacheTrazosServidor = data.trazos || [];
-                    if (crucigramaImg.src !== data.imagenBase64) {
-                        inicializarBoardConImagen(data.imagenBase64);
-                    } else {
+                    if (crucigramaImg.src !== data.imagenBase64) inicializarBoardConImagen(data.imagenBase64);
+                    else {
                         redimensionarCanvasNatural();
-                        redibujarLienzoCompleto(cacheTrazosServidor);
+                        redibujarTodosLosTrazos();
                         ajustarVistaAlContenedor();
                     }
                 } else limpiarInterfazTablero();
-                
-                actualizarPanelLogs(data.historial || []);
+
+                listaLogs.innerHTML = "";
+                (data.historial || []).slice().reverse().forEach(log => {
+                    const card = document.createElement('div'); card.className = "log-card";
+                    card.style.borderLeftColor = log.color;
+                    card.innerHTML = `<div style="display:flex;justify-content:space-between;"><span>✏️ Marcó</span><span>${log.hora}</span></div><div><span style="color:${log.color}; font-weight:bold;">${log.usuario}</span> registró palabra</div>`;
+                    listaLogs.appendChild(card);
+                });
             });
         }
-        
-        function actualizarPanelLogs(historial) {
-            listaLogs.innerHTML = "";
-            [...historial].reverse().forEach(log => {
-                const card = document.createElement('div'); card.className = "log-card";
-                card.style.borderLeftColor = log.color;
-                card.innerHTML = `<div style="display:flex; justify-content:space-between;"><span>✏️ Marcó</span><span>${log.hora}</span></div><div><span style="color:${log.color}; font-weight:bold;">${log.usuario}</span> registró palabra</div>`;
-                listaLogs.appendChild(card);
-            });
-        }
-        
-        // Lógica profesor carga archivos
-        const inputArchivo = document.getElementById('input-archivo-crucigrama');
-        const boxConfirmacion = document.getElementById('box-confirmacion-archivo');
-        const nombreArchivoSpan = document.getElementById('nombre-archivo-pendiente');
-        const btnConfirmarCarga = document.getElementById('btn-confirmar-carga');
-        
-        inputArchivo.addEventListener('change', (e) => {
+
+        // --- LÓGICA PROFESOR: subir archivos y publicar ---
+        const inputFile = document.getElementById('input-archivo-crucigrama');
+        const boxConfirm = document.getElementById('box-confirmacion-archivo');
+        const fileNameSpan = document.getElementById('nombre-archivo-pendiente');
+        const btnConfirm = document.getElementById('btn-confirmar-carga');
+        inputFile.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
             archivoSeleccionadoLocal = file;
-            nombreArchivoSpan.innerText = file.name;
-            boxConfirmacion.classList.remove('hidden');
+            fileNameSpan.innerText = file.name;
+            boxConfirm.classList.remove('hidden');
         });
-        
-        btnConfirmarCarga.addEventListener('click', async () => {
+        btnConfirm.addEventListener('click', async () => {
             if (!archivoSeleccionadoLocal) return;
             if (archivoSeleccionadoLocal.type === "application/pdf") {
                 const reader = new FileReader();
@@ -939,7 +869,7 @@
                     finalCanvas.getContext('2d').drawImage(tempCanvas, 0, 0, finalCanvas.width, finalCanvas.height);
                     imagenBase64Temporal = finalCanvas.toDataURL('image/jpeg', 0.8);
                     alert("PDF listo");
-                    boxConfirmacion.classList.add('hidden');
+                    boxConfirm.classList.add('hidden');
                 };
                 reader.readAsArrayBuffer(archivoSeleccionadoLocal);
             } else {
@@ -948,36 +878,31 @@
                     const img = new Image();
                     img.onload = () => {
                         const maxW = 1200;
-                        const canvasTmp = document.createElement('canvas');
-                        canvasTmp.width = maxW;
-                        canvasTmp.height = img.height * (maxW / img.width);
-                        canvasTmp.getContext('2d').drawImage(img, 0, 0, canvasTmp.width, canvasTmp.height);
-                        imagenBase64Temporal = canvasTmp.toDataURL('image/jpeg', 0.8);
+                        const tmpCanvas = document.createElement('canvas');
+                        tmpCanvas.width = maxW;
+                        tmpCanvas.height = img.height * (maxW / img.width);
+                        tmpCanvas.getContext('2d').drawImage(img, 0, 0, tmpCanvas.width, tmpCanvas.height);
+                        imagenBase64Temporal = tmpCanvas.toDataURL('image/jpeg', 0.8);
                         alert("Imagen confirmada");
-                        boxConfirmacion.classList.add('hidden');
+                        boxConfirm.classList.add('hidden');
                     };
                     img.src = ev.target.result;
                 };
                 reader.readAsDataURL(archivoSeleccionadoLocal);
             }
         });
-        
         document.getElementById('btn-subir-juego').addEventListener('click', async () => {
             if (!imagenBase64Temporal && crucigramaImg.src === "") { alert("Confirma un archivo primero."); return; }
             const pistasRaw = document.getElementById('input-pistas').value;
             const arrPistas = pistasRaw.split(',').map(p=>p.trim()).filter(Boolean);
-            const payload = { pistas: arrPistas, trazos: [], historial: [] };
-            if (imagenBase64Temporal) payload.imagenBase64 = imagenBase64Temporal;
-            await updateDoc(doc(db, "salas_crucigramas", salaId), payload);
+            await updateDoc(doc(db, "salas_crucigramas", salaId), { pistas: arrPistas, imagenBase64: imagenBase64Temporal || crucigramaImg.src, trazos: [], historial: [] });
             alert("¡Sopa publicada!");
             imagenBase64Temporal = "";
             archivoSeleccionadoLocal = null;
         });
-        
         document.getElementById('btn-limpiar-trazos').addEventListener('click', async () => {
-            if (confirm("¿Borrar todos los trazados?")) await updateDoc(doc(db, "salas_crucigramas", salaId), { trazos: [], historial: [] });
+            if (confirm("¿Borrar todas las marcas?")) await updateDoc(doc(db, "salas_crucigramas", salaId), { trazos: [], historial: [] });
         });
-        
         document.getElementById('btn-toggle-profesor').addEventListener('click', () => panelProfesor.classList.toggle('mobile-open'));
         document.getElementById('btn-toggle-historial').addEventListener('click', () => sidebarHistorial.classList.toggle('mobile-open'));
     </script>
