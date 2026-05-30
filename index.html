@@ -2,136 +2,590 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sopa de Letras - Estudiante</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Sopa de Letras Interactiva - Proyecto Puente</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+
     <style>
-        :root { --blue: #1a73e8; --green: #188038; --bg: #eef1f4; }
-        body { margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; background: var(--bg); font-family: sans-serif; overflow: hidden; touch-action: none; }
+        :root {
+            --brand-black: #111111;
+            --brand-gold: #c5a059;
+            --brand-gold-hover: #b38f46;
+            --brand-gray-light: #f4f4f6;
+            --brand-gray-medium: #cbd5e1;
+            --brand-gray-dark: #475569;
+            --accent-blue: #1a73e8;
+            --accent-red: #d93025;
+            --accent-green: #188038;
+            --text-dark: #1f2937;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         
-        #viewport { flex: 1; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        #canvas-wrapper { position: absolute; transform-origin: center center; cursor: grab; }
-        #tablero-img { display: block; pointer-events: none; }
-        #canvas-interactivo { position: absolute; top: 0; left: 0; pointer-events: none; }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--brand-gray-light);
+            color: var(--text-dark);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .auth-overlay {
+            position: fixed; inset: 0; background: var(--brand-black); z-index: 3000;
+            display: flex; align-items: center; justify-content: center; padding: 1rem;
+        }
+        .auth-card {
+            background: white; padding: 2.5rem; border-radius: 16px; width: 100%; max-width: 450px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); border-top: 5px solid var(--brand-gold);
+        }
+        .auth-card h2 { font-family: 'Montserrat', sans-serif; margin-bottom: 1.5rem; text-align: center; }
+        .auth-card h2 span { color: var(--brand-gold); }
         
-        .floating-ui { position: fixed; bottom: 30px; right: 20px; display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
-        .btn { width: 65px; height: 65px; border-radius: 50%; border: none; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; }
-        .btn.active-nav { background: var(--blue); color: white; }
-        .btn.active-mark { background: var(--green); color: white; }
+        .app-header {
+            background: var(--brand-black); height: 65px; border-bottom: 3px solid var(--brand-gold);
+            display: flex; justify-content: space-between; align-items: center; padding: 0 1.5rem; z-index: 100;
+            color: white;
+        }
+        .logo-area { display: flex; align-items: center; gap: 10px; }
+        .logo-area h1 { font-family: 'Montserrat', sans-serif; font-size: 1.1rem; }
+        .logo-area h1 span { color: var(--brand-gold); }
+        .session-info { display: flex; align-items: center; gap: 15px; font-size: 0.9rem; }
+        .room-badge { background: #222222; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--brand-gold); color: var(--brand-gold); font-weight: bold; }
+
+        .mobile-toggle-btn {
+            display: none; background: #222; color: white; border: 1px solid var(--brand-gold);
+            padding: 8px; border-radius: 6px; cursor: pointer; align-items: center; justify-content: center;
+        }
+
+        .main-layout { display: flex; flex: 1; height: calc(100vh - 65px); overflow: hidden; position: relative; }
+
+        .sidebar-profesor {
+            width: 320px; background: white; border-right: 1px solid var(--brand-gray-medium);
+            padding: 1.5rem; display: flex; flex-direction: column; gap: 1.1rem; overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+        .profesor-lock { border: 1px solid var(--brand-gold); padding: 1rem; border-radius: 10px; background: #faf8f5; }
+
+        .confirm-upload-box {
+            background: var(--brand-gray-light); border: 1px dashed var(--brand-gold);
+            padding: 0.75rem; border-radius: 8px; display: flex; flex-direction: column; gap: 8px;
+        }
+
+        .canvas-area {
+            flex: 1; padding: 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background-color: #eef1f4; position: relative; overflow: hidden; gap: 1rem;
+        }
         
-        #status-msg { position: absolute; top: 40%; width: 100%; text-align: center; color: #666; font-weight: bold; }
+        .pistas-container {
+            width: 100%; max-width: 800px; background: white; padding: 0.75rem; border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 4px solid var(--accent-blue); z-index: 10;
+        }
+        .pistas-flex { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px; }
+        .pista-tag { background: var(--brand-gray-light); border: 1px solid var(--brand-gray-medium); padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; }
+
+        .viewport-wrapper {
+            flex: 1; width: 100%; position: relative; overflow: hidden;
+            border: 2px solid var(--brand-gray-medium); border-radius: 12px; background: #dcdfe4;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .transform-scroller {
+            position: absolute; transform-origin: center center;
+            display: flex; align-items: center; justify-content: center;
+            touch-action: none; user-select: none;
+        }
+
+        .board-container { position: relative; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        #crucigrama-img { max-width: 900px; display: block; pointer-events: none; }
+        #canvas-interactivo { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+        .floating-mode-container {
+            position: absolute; bottom: 20px; right: 20px; z-index: 500;
+            display: flex; flex-direction: column; gap: 12px; align-items: flex-end;
+        }
+        .btn-mode-indicator {
+            background: var(--brand-black); color: white; padding: 6px 14px; border-radius: 20px;
+            font-size: 0.75rem; font-weight: bold; border: 1px solid var(--brand-gold); box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .student-actions-group { display: flex; gap: 10px; }
+        .btn-floating-action {
+            width: 60px; height: 60px; border-radius: 50%; background: white;
+            color: var(--brand-gray-dark); border: 2px solid var(--brand-gray-medium); box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s ease;
+        }
+        .btn-floating-action span { font-size: 1.6rem; }
+        .btn-floating-action label { font-size: 0.65rem; font-weight: bold; margin-top: -2px; cursor: pointer; }
+        
+        .btn-floating-action.active-navegar { background: var(--accent-blue) !important; color: white !important; border-color: white; }
+        .btn-floating-action.active-marcar { background: var(--accent-green) !important; color: white !important; border-color: white; animation: pulse 1.8s infinite; }
+
+        .sidebar-historial {
+            width: 280px; background: white; border-left: 1px solid var(--brand-gray-medium);
+            display: flex; flex-direction: column; transition: transform 0.3s ease;
+        }
+        .historial-header { padding: 1.2rem; border-bottom: 1px solid var(--brand-gray-medium); background: var(--brand-gray-light); font-weight: bold; }
+        .lista-logs { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+        
+        .log-card {
+            padding: 0.65rem; border-radius: 8px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border: 1px solid #edf2f7; border-left: 5px solid #ccc; font-size: 0.8rem;
+        }
+
+        .form-group { margin-bottom: 0.5rem; display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-size: 0.75rem; font-weight: 700; color: var(--brand-gray-dark); text-transform: uppercase; }
+        .form-group input, .form-group select, .form-group textarea { padding: 0.65rem; border: 1px solid var(--brand-gray-medium); border-radius: 8px; font-size: 0.9rem; }
+        
+        .btn-main { background: var(--brand-black); color: white; border: none; padding: 0.75rem; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-action-blue { background: var(--accent-blue); }
+        .btn-action-green { background: var(--accent-green); }
+        .btn-danger { background: var(--accent-red); }
+
+        .hidden { display: none !important; }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(24, 128, 56, 0.7); }
+            70% { box-shadow: 0 0 0 12px rgba(24, 128, 56, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(24, 128, 56, 0); }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar-profesor { position: absolute; left: 0; top: 0; bottom: 0; z-index: 1000; transform: translateX(-100%); }
+            .sidebar-historial { position: absolute; right: 0; top: 0; bottom: 0; z-index: 1000; transform: translateX(100%); }
+            .mobile-toggle-btn { display: flex; }
+        }
     </style>
 </head>
 <body>
 
-    <div id="status-msg">Esperando contenido del profesor...</div>
-    <div id="viewport">
-        <div id="canvas-wrapper">
-            <img id="tablero-img" src="" alt="Juego">
-            <canvas id="canvas-interactivo"></canvas>
+    <div id="auth-screen" class="auth-overlay">
+        <div class="auth-card">
+            <h2 style="font-family:'Montserrat';">PROGRAMA <span>PUENTE</span></h2>
+            <form id="form-ingreso">
+                <div class="form-group">
+                    <label for="input-nombre">Tu Nombre / Pseudónimo</label>
+                    <input type="text" id="input-nombre" placeholder="Ej. Estudiante de Física" required>
+                </div>
+                <div class="form-group">
+                    <label for="input-rol">¿Quién eres?</label>
+                    <select id="input-rol">
+                        <option value="estudiante">Estudiante</option>
+                        <option value="profesor">Profesor / Moderador</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="input-sala">Código de Sala</label>
+                    <input type="text" id="input-sala" placeholder="SALA-PROFE" required style="text-transform: uppercase;">
+                </div>
+                <div id="wrapper-clave-profe" class="form-group hidden">
+                    <label for="input-clave">Contraseña de Profesor</label>
+                    <input type="password" id="input-clave" placeholder="Clave">
+                </div>
+                <button type="submit" class="btn-main btn-action-blue" style="width:100%;">Ingresar</button>
+            </form>
         </div>
     </div>
 
-    <div class="floating-ui">
-        <button id="btn-nav" class="btn active-nav"><span class="material-symbols-outlined">pan_tool</span></button>
-        <button id="btn-mark" class="btn"><span class="material-symbols-outlined">edit</span></button>
+    <header class="app-header">
+        <div class="logo-area">
+            <button id="btn-toggle-profesor" class="mobile-toggle-btn hidden"><span class="material-symbols-outlined" style="color:var(--brand-gold)">admin_panel_settings</span></button>
+            <span class="material-symbols-outlined" style="color:var(--brand-gold)">grid_on</span>
+            <h1>PUENTE - <span>SOPA DE LETRAS</span></h1>
+        </div>
+        <div class="session-info">
+            <span class="room-badge">Sala: <span id="label-sala-activa">---</span></span>
+            <button id="btn-toggle-historial" class="mobile-toggle-btn"><span class="material-symbols-outlined" style="color:var(--accent-blue)">history</span></button>
+        </div>
+    </header>
+
+    <div class="main-layout">
+        
+        <aside id="panel-profesor" class="sidebar-profesor hidden">
+            <div class="profesor-lock">
+                <h3 style="font-size:0.9rem; font-weight:bold;"><span class="material-symbols-outlined" style="vertical-align:middle; font-size:1.1rem; color:var(--brand-gold);">admin_panel_settings</span> MODERACIÓN DOCENTE</h3>
+            </div>
+            <div class="form-group">
+                <label>1. Sopa de letras / Crucigrama (PNG, JPG, PDF)</label>
+                <input type="file" id="input-archivo-crucigrama" accept="image/*, application/pdf">
+            </div>
+            <div id="box-confirmacion-archivo" class="confirm-upload-box hidden">
+                <div style="font-size:0.8rem; font-weight:500;" id="nombre-archivo-pendiente">archivo.png</div>
+                <button id="btn-confirmar-carga" class="btn-main btn-action-green" style="padding:4px;"><span class="material-symbols-outlined">done</span> Confirmar Archivo</button>
+            </div>
+            <div class="form-group">
+                <label>2. Palabras Buscadas (Separadas por comas)</label>
+                <textarea id="input-pistas" style="height:60px;" placeholder="Ej. Fuerza, Masa, Aceleracion"></textarea>
+            </div>
+            <button id="btn-subir-juego" class="btn-main btn-action-blue" style="width:100%;"><span class="material-symbols-outlined">cloud_upload</span> Publicar Tablero</button>
+            <button id="btn-limpiar-trazos" class="btn-main btn-danger" style="margin-top:auto; width:100%;"><span class="material-symbols-outlined">mop</span> Limpiar Todo</button>
+        </aside>
+
+        <main class="canvas-area">
+            <div id="pistas-display-area" class="pistas-container hidden">
+                <div style="font-size:0.8rem; font-weight:bold; color:var(--brand-gray-dark);">PALABRAS POR ENCONTRAR:</div>
+                <div id="pistas-lista-tags" class="pistas-flex"></div>
+            </div>
+
+            <div id="viewport-padre" class="viewport-wrapper">
+                <div id="scroller-transformable" class="transform-scroller">
+                    <div id="board-wrapper" class="board-container hidden">
+                        <img id="crucigrama-img" src="" alt="Sopa de Letras">
+                        <canvas id="canvas-interactivo"></canvas>
+                    </div>
+                </div>
+
+                <div id="placeholder-vacio" style="color:var(--brand-gray-dark); text-align:center; font-weight:500;">
+                    <span class="material-symbols-outlined" style="font-size:4rem; color:var(--accent-blue); display:block; margin-bottom:10px;">distance</span>
+                    Esperando que el docente publique la Sopa de Letras...
+                </div>
+            </div>
+
+            <div id="controles-flotantes-estudiante" class="floating-mode-container hidden">
+                <div id="indicador-modo-texto" class="btn-mode-indicator">Modo: Navegar / Zoom 👁️</div>
+                <div class="student-actions-group">
+                    <button id="btn-modo-navegar" class="btn-floating-action active-navegar" title="Mover y Ampliar Tablero">
+                        <span class="material-symbols-outlined">pan_tool</span>
+                        <label>Mover</label>
+                    </button>
+                    <button id="btn-modo-marcar" class="btn-floating-action" title="Marcar palabra en el crucigrama">
+                        <span class="material-symbols-outlined">edit</span>
+                        <label>Marcar</label>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <aside id="sidebar-historial" class="sidebar-historial">
+            <div class="historial-header">Aportes Recientes</div>
+            <div id="lista-logs" class="lista-logs"></div>
+        </aside>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyBQdvDBqezHmwzYy5fXEi7M8sB8gzcFPKU",
-            projectId: "sistema-profe-puente"
+            authDomain: "sistema-profe-puente.firebaseapp.com",
+            projectId: "sistema-profe-puente",
+            storageBucket: "sistema-profe-puente.appspot.com",
+            messagingSenderId: "383416484351",
+            appId: "1:383416484351:web:ca37a09d3bdf8fae8a6088"
         };
-        const db = getFirestore(initializeApp(firebaseConfig));
 
-        const img = document.getElementById('tablero-img');
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let usuarioLocal = { nombre: "", rol: "estudiante", color: "#ff0000" };
+        let salaId = "DEFAULT";
+        let estaDibujando = false;
+        let trazoActual = [];
+        let imagenBase64Temporal = "";
+        let cacheTrazosServidor = [];
+        let archivoSeleccionadoLocal = null;
+
+        let modoActual = "navegar"; 
+        let scale = 1;
+        let panX = 0;
+        let panY = 0;
+        let estaMoviendoVista = false;
+        let startX, startY;
+        let distInicialPinch = 0;
+
+        const authScreen = document.getElementById('auth-screen');
+        const formIngreso = document.getElementById('form-ingreso');
+        const selectRol = document.getElementById('input-rol');
+        const wrapperClave = document.getElementById('wrapper-clave-profe');
+        const panelProfesor = document.getElementById('panel-profesor');
+        const boardWrapper = document.getElementById('board-wrapper');
+        const placeholderVacio = document.getElementById('placeholder-vacio');
+        const crucigramaImg = document.getElementById('crucigrama-img');
         const canvas = document.getElementById('canvas-interactivo');
         const ctx = canvas.getContext('2d');
-        const wrapper = document.getElementById('canvas-wrapper');
-        const viewport = document.getElementById('viewport');
-        let modo = 'navegar', scale = 1, panX = 0, panY = 0;
+        const listaLogs = document.getElementById('lista-logs');
+        const pistasDisplayArea = document.getElementById('pistas-display-area');
+        const pistasListaTags = document.getElementById('pistas-lista-tags');
+        
+        const controlesFlotantesEstudiante = document.getElementById('controles-flotantes-estudiante');
+        const btnModoNavegar = document.getElementById('btn-modo-navegar');
+        const btnModoMarcar = document.getElementById('btn-modo-marcar');
+        const indicadorModoTexto = document.getElementById('indicador-modo-texto');
+        
+        const viewportPadre = document.getElementById('viewport-padre');
+        const scrollerTransformable = document.getElementById('scroller-transformable');
 
-        // 1. ESCUCHA DE DATOS EN TIEMPO REAL
-        onSnapshot(doc(db, "salas_crucigramas", "DEFAULT"), (docSnap) => {
-            if (!docSnap.exists() || !docSnap.data().imagenBase64) return;
+        selectRol.addEventListener('change', (e) => {
+            if (e.target.value === 'profesor') wrapperClave.classList.remove('hidden');
+            else wrapperClave.classList.add('hidden');
+        });
+
+        formIngreso.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nombre = document.getElementById('input-nombre').value.trim();
+            const rol = selectRol.value;
+            const salaInput = document.getElementById('input-sala').value.trim().toUpperCase();
             
-            const data = docSnap.data();
-            document.getElementById('status-msg').style.display = 'none';
-            
-            if (img.src !== data.imagenBase64) {
-                img.src = data.imagenBase64;
-                img.onload = () => {
-                    canvas.width = img.naturalWidth;
-                    canvas.height = img.naturalHeight;
-                    ajustarImagenInicial();
-                    renderTrazos(data.trazos || []);
-                };
+            if (rol === 'profesor' && document.getElementById('input-clave').value !== 'mejia') {
+                alert("Clave de Docente incorrecta."); return;
+            }
+
+            usuarioLocal.nombre = nombre;
+            usuarioLocal.rol = rol;
+            usuarioLocal.color = `hsl(${Math.abs(nombre.split('').reduce((a,b)=>a+b.charCodeAt(0),0) % 360)}, 95%, 45%)`;
+            salaId = salaInput;
+
+            document.getElementById('label-sala-activa').innerText = salaId;
+            authScreen.classList.add('hidden');
+
+            if (rol === 'profesor') {
+                panelProfesor.classList.remove('hidden');
+                document.getElementById('btn-toggle-profesor').classList.remove('hidden');
             } else {
-                renderTrazos(data.trazos || []);
+                controlesFlotantesEstudiante.classList.remove('hidden');
+            }
+            conectarSalaFirestore();
+        });
+
+        function conectarSalaFirestore() {
+            const salaRef = doc(db, "salas_crucigramas", salaId);
+            onSnapshot(salaRef, (docSnap) => {
+                if (!docSnap.exists()) {
+                    setDoc(salaRef, { imagenBase64: "", pistas: [], trazos: [], historial: [] });
+                    limpiarInterfazTablero();
+                    return;
+                }
+                const data = docSnap.data();
+                if (data.pistas && data.pistas.length > 0) {
+                    pistasDisplayArea.classList.remove('hidden');
+                    pistasListaTags.innerHTML = "";
+                    data.pistas.forEach(p => {
+                        const span = document.createElement('span');
+                        span.className = "pista-tag"; span.innerText = p;
+                        pistasListaTags.appendChild(span);
+                    });
+                } else { pistasDisplayArea.classList.add('hidden'); }
+
+                if (data.imagenBase64 && data.imagenBase64 !== "") {
+                    placeholderVacio.classList.add('hidden');
+                    boardWrapper.classList.remove('hidden');
+                    cacheTrazosServidor = data.trazos || [];
+
+                    if (crucigramaImg.src !== data.imagenBase64) {
+                        crucigramaImg.src = data.imagenBase64;
+                        crucigramaImg.onload = () => {
+                            redimensionarCanvasEfectivo();
+                            ajustarImagenAlViewport();
+                        };
+                    } else {
+                        redibujarLienzoCompleto(cacheTrazosServidor);
+                    }
+                } else {
+                    limpiarInterfazTablero();
+                }
+                actualizarPanelLogs(data.historial || []);
+            });
+        }
+
+        function ajustarImagenAlViewport() {
+            const vpWidth = viewportPadre.clientWidth;
+            const vpHeight = viewportPadre.clientHeight;
+            const imgWidth = crucigramaImg.naturalWidth;
+            const imgHeight = crucigramaImg.naturalHeight;
+
+            const scaleW = vpWidth / imgWidth;
+            const scaleH = vpHeight / imgHeight;
+            scale = Math.min(scaleW, scaleH, 1); 
+            panX = 0; panY = 0;
+            aplicarTransformacionesVista();
+        }
+
+        function limpiarInterfazTablero() {
+            boardWrapper.classList.add('hidden');
+            placeholderVacio.classList.remove('hidden');
+            crucigramaImg.src = "";
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            cacheTrazosServidor = [];
+        }
+
+        function redimensionarCanvasEfectivo() {
+            if (crucigramaImg.naturalWidth > 0) {
+                canvas.width = crucigramaImg.clientWidth;
+                canvas.height = crucigramaImg.clientHeight;
+                redibujarLienzoCompleto(cacheTrazosServidor);
+            }
+        }
+
+        function aplicarTransformacionesVista() {
+            scrollerTransformable.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+        }
+
+        btnModoNavegar.addEventListener('click', () => {
+            modoActual = "navegar";
+            btnModoNavegar.classList.add('active-navegar');
+            btnModoMarcar.classList.remove('active-marcar');
+            indicadorModoTexto.innerText = "Modo: Navegar / Zoom 👁️";
+        });
+
+        btnModoMarcar.addEventListener('click', () => {
+            modoActual = "marcar";
+            btnModoMarcar.classList.add('active-marcar');
+            btnModoNavegar.classList.remove('active-navegar');
+            indicadorModoTexto.innerText = "Modo: Marcando palabra ✏️";
+        });
+
+        viewportPadre.addEventListener('mousedown', (e) => {
+            if (modoActual === "navegar") {
+                estaMoviendoVista = true;
+                startX = e.clientX - panX; startY = e.clientY - panY;
             }
         });
 
-        // 2. LÓGICA DE AUTO-AJUSTE (CONTAIN)
-        function ajustarImagenInicial() {
-            const vW = viewport.clientWidth * 0.95;
-            const vH = viewport.clientHeight * 0.95;
-            scale = Math.min(vW / img.naturalWidth, vH / img.naturalHeight);
-            panX = (viewport.clientWidth - (img.naturalWidth * scale)) / 2;
-            panY = (viewport.clientHeight - (img.naturalHeight * scale)) / 2;
-            wrapper.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+        window.addEventListener('mousemove', (e) => {
+            if (modoActual === "navegar" && estaMoviendoVista) {
+                panX = e.clientX - startX; panY = e.clientY - startY;
+                aplicarTransformacionesVista();
+            }
+        });
+
+        window.addEventListener('mouseup', () => { estaMoviendoVista = false; });
+
+        viewportPadre.addEventListener('touchstart', (e) => {
+            if (modoActual === "navegar") {
+                if (e.touches.length === 1) {
+                    estaMoviendoVista = true;
+                    startX = e.touches[0].clientX - panX;
+                    startY = e.touches[0].clientY - panY;
+                } else if (e.touches.length === 2) {
+                    estaMoviendoVista = false;
+                    distInicialPinch = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                }
+            }
+        }, { passive: true });
+
+        viewportPadre.addEventListener('touchmove', (e) => {
+            if (modoActual === "navegar") {
+                if (e.touches.length === 1 && estaMoviendoVista) {
+                    panX = e.touches[0].clientX - startX;
+                    panY = e.touches[0].clientY - startY;
+                    aplicarTransformacionesVista();
+                } else if (e.touches.length === 2) {
+                    const distActual = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                    const factor = distActual / distInicialPinch;
+                    scale = Math.max(0.2, Math.min(4, scale * factor));
+                    distInicialPinch = distActual;
+                    aplicarTransformacionesVista();
+                }
+            }
+        }, { passive: true });
+
+        viewportPadre.addEventListener('touchend', () => { estaMoviendoVista = false; });
+
+        function obtenerPuntoRelativoCanvas(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: (clientX - rect.left) / rect.width,
+                y: (clientY - rect.top) / rect.height
+            };
         }
 
-        function renderTrazos(trazos) {
+        function arrancarTrazo(e) {
+            if (modoActual !== "marcar") return;
+            estaDibujando = true;
+            trazoActual = [obtenerPuntoRelativoCanvas(e)];
+        }
+
+        function arrastrarTrazo(e) {
+            if (!estaDibujando || modoActual !== "marcar") return;
+            if (e.cancelable) e.preventDefault();
+            const p = obtenerPuntoRelativoCanvas(e);
+            trazoActual.push(p);
+            redibujarLienzoCompleto(cacheTrazosServidor);
+            dibujarLineaEnPantalla(trazoActual, usuarioLocal.color);
+        }
+
+        async function guardarTrazoFinal() {
+            if (!estaDibujando || modoActual !== "marcar") return;
+            estaDibujando = false;
+            if (trazoActual.length < 2) return;
+            const salaRef = doc(db, "salas_crucigramas", salaId);
+            const stamp = new Date().toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' });
+            try {
+                await updateDoc(salaRef, {
+                    trazos: arrayUnion({ usuario: usuarioLocal.nombre, color: usuarioLocal.color, puntos: trazoActual }),
+                    historial: arrayUnion({ usuario: usuarioLocal.nombre, hora: stamp, color: usuarioLocal.color })
+                });
+            } catch (err) { console.error(err); }
+        }
+
+        canvas.addEventListener('mousedown', arrancarTrazo);
+        canvas.addEventListener('mousemove', arrastrarTrazo);
+        window.addEventListener('mouseup', guardarTrazoFinal);
+        canvas.addEventListener('touchstart', arrancarTrazo, { passive: true });
+        canvas.addEventListener('touchmove', arrastrarTrazo, { passive: false });
+        canvas.addEventListener('touchend', guardarTrazoFinal);
+
+        function dibujarLineaEnPantalla(puntos, color) {
+            if (puntos.length < 2) return;
+            ctx.beginPath();
+            ctx.globalAlpha = 0.45;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = Math.max(7, canvas.width * 0.02);
+            ctx.lineCap = "round"; ctx.lineJoin = "round";
+            ctx.moveTo(puntos[0].x * canvas.width, puntos[0].y * canvas.height);
+            for (let i = 1; i < puntos.length; i++) {
+                ctx.lineTo(puntos[i].x * canvas.width, puntos[i].y * canvas.height);
+            }
+            ctx.stroke();
+        }
+
+        function redibujarLienzoCompleto(trazos) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            trazos.forEach(t => {
-                ctx.beginPath();
-                ctx.strokeStyle = t.color;
-                ctx.lineWidth = 20;
-                ctx.lineCap = "round";
-                t.puntos.forEach((p, i) => i === 0 ? ctx.moveTo(p.x * canvas.width, p.y * canvas.height) : ctx.lineTo(p.x * canvas.width, p.y * canvas.height));
-                ctx.stroke();
+            trazos.forEach(t => dibujarLineaEnPantalla(t.puntos, t.color));
+        }
+
+        document.getElementById('btn-subir-juego').addEventListener('click', async () => {
+            const txt = document.getElementById('input-pistas').value.trim();
+            const arrPistas = txt ? txt.split(',').map(p => p.trim()).filter(Boolean) : [];
+            const payload = { pistas: arrPistas, trazos: [], historial: [] };
+            if (imagenBase64Temporal) payload.imagenBase64 = imagenBase64Temporal;
+            await updateDoc(doc(db, "salas_crucigramas", salaId), payload);
+            alert("Sopa de letras publicada con éxito.");
+        });
+
+        document.getElementById('btn-limpiar-trazos').addEventListener('click', async () => {
+            if (confirm("¿Borrar todos los trazos?")) {
+                await updateDoc(doc(db, "salas_crucigramas", salaId), { trazos: [], historial: [] });
+            }
+        });
+
+        function actualizarPanelLogs(historial) {
+            listaLogs.innerHTML = "";
+            [...historial].reverse().forEach(log => {
+                const card = document.createElement('div'); card.className = "log-card";
+                card.style.borderLeftColor = log.color;
+                card.innerHTML = `<div><span style="color:${log.color}; font-weight:bold;">${log.usuario}</span> marcó una palabra.</div>`;
+                listaLogs.appendChild(card);
             });
         }
 
-        // 3. INTERACCIÓN Y NAVEGACIÓN
-        let isDrawing = false, currentPath = [];
-        
-        canvas.addEventListener('mousedown', (e) => {
-            if (modo !== 'marcar') return;
-            isDrawing = true;
-            currentPath = [{x: e.offsetX/canvas.width, y: e.offsetY/canvas.height}];
-        });
-
-        canvas.addEventListener('mousemove', (e) => {
-            if (!isDrawing) return;
-            currentPath.push({x: e.offsetX/canvas.width, y: e.offsetY/canvas.height});
-            renderTrazos([... (window.cache || []), {puntos: currentPath, color: 'red'}]);
-        });
-
-        canvas.addEventListener('mouseup', async () => {
-            if (!isDrawing) return;
-            isDrawing = false;
-            await updateDoc(doc(db, "salas_crucigramas", "DEFAULT"), {
-                trazos: arrayUnion({ color: 'red', puntos: currentPath })
-            });
-        });
-
-        // 4. CONTROL DE BOTONES
-        document.getElementById('btn-nav').onclick = (e) => { 
-            modo = 'navegar'; 
-            e.currentTarget.classList.add('active-nav'); 
-            document.getElementById('btn-mark').classList.remove('active-mark');
-            canvas.style.pointerEvents = "none";
-        };
-        document.getElementById('btn-mark').onclick = (e) => { 
-            modo = 'marcar'; 
-            e.currentTarget.classList.add('active-mark'); 
-            document.getElementById('btn-nav').classList.remove('active-nav');
-            canvas.style.pointerEvents = "auto";
-        };
+        document.getElementById('btn-toggle-profesor').addEventListener('click', () => panelProfesor.classList.toggle('mobile-open'));
+        document.getElementById('btn-toggle-historial').addEventListener('click', () => document.getElementById('sidebar-historial').classList.toggle('mobile-open'));
     </script>
 </body>
 </html>
