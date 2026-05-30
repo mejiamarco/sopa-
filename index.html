@@ -9,18 +9,27 @@
     
     <style>
         :root {
-            --primary-blue: #1a73e8;
-            --primary-hover: #1557b0;
-            --bg-dark: #0f172a;
-            --border-color: #cbd5e1;
-            --text-dark: #1e293b;
+            /* Línea Gráfica Institucional */
+            --brand-black: #111111;
+            --brand-gold: #c5a059;
+            --brand-gold-hover: #b38f46;
+            --brand-gray-light: #f4f4f6;
+            --brand-gray-medium: #cbd5e1;
+            --brand-gray-dark: #475569;
+            
+            /* Colores de Realce para Iconos/Botones Llamativos */
+            --accent-blue: #1a73e8;
+            --accent-red: #d93025;
+            --accent-green: #188038;
+            
+            --text-dark: #1f2937;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: #f8fafc;
+            background-color: var(--brand-gray-light);
             color: var(--text-dark);
             height: 100vh;
             display: flex;
@@ -28,81 +37,114 @@
             overflow: hidden;
         }
 
-        /* --- LOGIN / ACCESO --- */
+        /* --- PANTALLA DE ACCESO (AUTH) --- */
         .auth-overlay {
-            position: fixed; inset: 0; background: #0f172a; z-index: 3000;
+            position: fixed; inset: 0; background: var(--brand-black); z-index: 3000;
             display: flex; align-items: center; justify-content: center; padding: 1rem;
         }
         .auth-card {
-            background: white; padding: 2.5rem; border-radius: 20px; width: 100%; max-width: 450px;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
+            background: white; padding: 2.5rem; border-radius: 16px; width: 100%; max-width: 450px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+            border-top: 5px solid var(--brand-gold);
             animation: popIn 0.3s ease-out;
         }
-        .auth-card h2 { font-family: 'Montserrat', sans-serif; margin-bottom: 1.5rem; color: var(--primary-blue); text-align: center; }
+        .auth-card h2 { font-family: 'Montserrat', sans-serif; margin-bottom: 1.5rem; color: var(--brand-black); text-align: center; }
+        .auth-card h2 span { color: var(--brand-gold); }
         
         /* --- HEADER --- */
         .app-header {
-            background: white; height: 65px; border-bottom: 1px solid var(--border-color);
+            background: var(--brand-black); height: 65px; border-bottom: 3px solid var(--brand-gold);
             display: flex; justify-content: space-between; align-items: center; padding: 0 1.5rem; z-index: 100;
+            color: white;
         }
         .logo-area { display: flex; align-items: center; gap: 10px; }
-        .logo-area h1 { font-family: 'Montserrat', sans-serif; font-size: 1.1rem; color: #c5a059; }
-        .session-info { display: flex; align-items: center; gap: 15px; font-size: 0.9rem; font-weight: bold; color: #64748b; }
-        .room-badge { background: #e2e8f0; padding: 4px 10px; border-radius: 8px; color: var(--primary-blue); }
+        .logo-area h1 { font-family: 'Montserrat', sans-serif; font-size: 1.1rem; color: white; letter-spacing: 0.5px; }
+        .logo-area h1 span { color: var(--brand-gold); }
+        .session-info { display: flex; align-items: center; gap: 15px; font-size: 0.9rem; font-weight: 500; color: var(--brand-gray-medium); }
+        .room-badge { background: #222222; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--brand-gold); color: var(--brand-gold); font-weight: bold; }
 
         /* --- LAYOUT PRINCIPAL --- */
         .main-layout { display: flex; flex: 1; height: calc(100vh - 65px); overflow: hidden; }
 
-        /* Panel Izquierdo: Controles del Profesor */
+        /* Panel Izquierdo: Configuración del Profesor */
         .sidebar-profesor {
-            width: 280px; background: white; border-right: 1px solid var(--border-color);
-            padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;
+            width: 300px; background: white; border-right: 1px solid var(--brand-gray-medium);
+            padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; overflow-y: auto;
         }
-        .profesor-lock { border: 1px dashed #ef4444; padding: 1rem; border-radius: 12px; background: #fef2f2; }
-        .profesor-lock h3 { font-size: 0.85rem; color: #b91c1c; display: flex; align-items: center; gap: 6px; margin-bottom: 0.5rem; }
+        .profesor-lock { border: 1px solid var(--brand-gold); padding: 1rem; border-radius: 10px; background: #faf8f5; }
+        .profesor-lock h3 { font-size: 0.85rem; color: var(--brand-black); display: flex; align-items: center; gap: 6px; margin-bottom: 0.25rem; }
 
-        /* Panel Central: El Tablero de Juego */
+        /* Panel Central: Lienzo de Juego */
         .canvas-area {
-            flex: 1; padding: 1.5rem; display: flex; align-items: center; justify-content: center;
-            background-color: #f1f5f9; position: relative; overflow: auto;
+            flex: 1; padding: 1.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background-color: #eef1f4; position: relative; overflow: auto; gap: 1rem;
         }
+        
+        /* Contenedor del espacio opcional de Pistas (Visible para Alumnos arriba del tablero) */
+        .pistas-container {
+            width: 100%; max-width: 800px; background: white; padding: 1rem; border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 4px solid var(--accent-blue);
+        }
+        .pistas-title { font-size: 0.85rem; font-weight: 700; color: var(--brand-gray-dark); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 5px; }
+        .pistas-flex { display: flex; flex-wrap: wrap; gap: 8px; }
+        .pista-tag { background: var(--brand-gray-light); border: 1px solid var(--brand-gray-medium); padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; color: var(--brand-black); }
+
         .board-container {
-            position: relative; background: white; border-radius: 16px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05); overflow: hidden;
+            position: relative; background: white; border-radius: 12px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08); overflow: hidden;
             display: flex; align-items: center; justify-content: center;
+            border: 2px solid var(--brand-gray-medium);
         }
-        #crucigrama-img { max-width: 100%; max-height: 75vh; display: block; user-select: none; -webkit-user-drag: none; }
+        #crucigrama-img { max-width: 100%; max-height: 65vh; display: block; user-select: none; -webkit-user-drag: none; }
         #canvas-interactivo { position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: crosshair; }
 
-        /* Panel Derecho: Historial y Marcajes */
+        /* Panel Derecho: Historial */
         .sidebar-historial {
-            width: 320px; background: white; border-left: 1px solid var(--border-color);
+            width: 300px; background: white; border-left: 1px solid var(--brand-gray-medium);
             display: flex; flex-direction: column;
         }
-        .historial-header { padding: 1.2rem; border-bottom: 1px solid var(--border-color); font-family: 'Montserrat', sans-serif; font-size: 1rem; }
+        .historial-header { padding: 1.2rem; border-bottom: 1px solid var(--brand-gray-medium); font-family: 'Montserrat', sans-serif; font-size: 0.95rem; background: var(--brand-gray-light); color: var(--brand-black); }
         .historial-lista { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
         
-        /* Tarjetas de registro de jugadas */
         .log-card {
-            padding: 0.75rem; border-radius: 10px; border-left: 5px solid #ccc;
-            background: #f8fafc; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            padding: 0.75rem; border-radius: 8px; border-left: 5px solid #ccc;
+            background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border: 1px solid #edf2f7; border-left-width: 5px;
             font-size: 0.85rem; display: flex; flex-direction: column; gap: 4px;
             animation: slideIn 0.2s ease;
         }
-        .log-meta { display: flex; justify-content: space-between; color: #64748b; font-size: 0.75rem; font-weight: bold; }
+        .log-meta { display: flex; justify-content: space-between; color: var(--brand-gray-dark); font-size: 0.75rem; font-weight: bold; }
         .log-user { font-weight: bold; }
 
-        /* UTILERÍA COMPONENTES FORM */
-        .form-group { margin-bottom: 1.25rem; display: flex; flex-direction: column; gap: 6px; }
-        .form-group label { font-size: 0.8rem; font-weight: 700; color: #475569; text-transform: uppercase; }
-        .form-group input, .form-group select { padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 10px; font-size: 0.95rem; }
+        /* COMPONENTES DE FORMULARIO E INTERFAZ */
+        .form-group { margin-bottom: 1rem; display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-size: 0.75rem; font-weight: 700; color: var(--brand-gray-dark); text-transform: uppercase; }
+        .form-group input, .form-group select, .form-group textarea { padding: 0.65rem; border: 1px solid var(--brand-gray-medium); border-radius: 8px; font-size: 0.9rem; font-family: inherit; }
+        .form-group textarea { resize: none; height: 60px; }
+        
+        /* Botones Llamativos Basados en la Línea de Color Solicitada */
         .btn-main {
-            background: var(--primary-blue); color: white; border: none; padding: 0.75rem; 
-            border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; transition: background 0.2s;
+            background: var(--brand-black); color: white; border: none; padding: 0.75rem; 
+            border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; transition: all 0.2s;
+            border: 1px solid transparent;
         }
-        .btn-main:hover { background: var(--primary-hover); }
-        .btn-danger { background: #dc2626; margin-top: auto; }
-        .btn-danger:hover { background: #b91c1c; }
+        .btn-main:hover { background: #222222; }
+        
+        /* Iconos o Botones de Acción de Alta Visibilidad */
+        .btn-action-blue { background: var(--accent-blue) !important; color: white !important; }
+        .btn-action-blue:hover { background: #145cb3 !important; }
+        
+        .btn-action-green { background: var(--accent-green) !important; color: white !important; }
+        .btn-action-green:hover { background: #115c28 !important; }
+
+        .btn-danger { background: var(--accent-red) !important; color: white !important; }
+        .btn-danger:hover { background: #a51d14 !important; }
+
+        .icon-blue { color: var(--accent-blue); }
+        .icon-gold { color: var(--brand-gold); }
+        .icon-red { color: var(--accent-red); }
+        .icon-green { color: var(--accent-green); }
+
         .hidden { display: none !important; }
 
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -113,11 +155,11 @@
 
     <div id="auth-screen" class="auth-overlay">
         <div class="auth-card">
-            <h2>PROGRAMA PUENTE<br><span style="font-size:0.9rem; color:#64748b;">Pizarra de Crucigramas en Vivo</span></h2>
+            <h2>PROGRAMA <span>PUENTE</span><br><span style="font-size:0.85rem; color:var(--brand-gray-dark); font-weight:500;">Pizarra de Crucigramas en Vivo</span></h2>
             <form id="form-ingreso">
                 <div class="form-group">
                     <label for="input-nombre">Tu Nombre / Pseudónimo</label>
-                    <input type="text" id="input-nombre" placeholder="Ej. Juan Pérez" required>
+                    <input type="text" id="input-nombre" placeholder="Ej. Renato Mejía" required>
                 </div>
                 <div class="form-group">
                     <label for="input-rol">¿Quién eres?</label>
@@ -127,22 +169,22 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="input-sala">Código de Sala (Independiente)</label>
+                    <label for="input-sala">Código de Sala</label>
                     <input type="text" id="input-sala" placeholder="Ej. NUMERO DE GRUPO" required style="text-transform: uppercase;">
                 </div>
                 <div id="wrapper-clave-profe" class="form-group hidden">
                     <label for="input-clave">Contraseña de Profesor</label>
                     <input type="password" id="input-clave" placeholder="Clave del docente">
                 </div>
-                <button type="submit" class="btn-main">Ingresar al Juego</button>
+                <button type="submit" class="btn-main btn-action-blue">Ingresar al Juego</button>
             </form>
         </div>
     </div>
 
     <header class="app-header">
         <div class="logo-area">
-            <span class="material-symbols-outlined" style="color:var(--primary-blue)">extension</span>
-            <h1>CRUCIGRAMA INTERACTIVO</h1>
+            <span class="material-symbols-outlined icon-gold">extension</span>
+            <h1>PROGRAMA PUENTE - <span>CRUCIGRAMA EN VIVO</span></h1>
         </div>
         <div class="session-info">
             <span id="label-user-activo">Usuario: ---</span>
@@ -154,28 +196,48 @@
         
         <aside id="panel-profesor" class="sidebar-profesor hidden">
             <div class="profesor-lock">
-                <h3><span class="material-symbols-outlined" style="font-size:1.1rem">admin_panel_settings</span> PANEL DOCENTE</h3>
-                <p style="font-size: 0.75rem; color: #475569;">Control exclusivo para cargar tableros y limpiar la pizarra actual.</p>
+                <h3><span class="material-symbols-outlined icon-gold" style="font-size:1.1rem">admin_panel_settings</span> PANEL DOCENTE</h3>
+                <p style="font-size: 0.75rem; color: var(--brand-gray-dark);">Configura el juego para tu grupo de alumnos actual.</p>
             </div>
             
             <div class="form-group">
-                <label>Cargar Nuevo Crucigrama</label>
+                <label>1. Imagen del Tablero</label>
                 <input type="file" id="input-archivo-crucigrama" accept="image/*">
             </div>
 
-            <button id="btn-limpiar-trazos" class="btn-main btn-danger">
+            <div class="form-group">
+                <label for="input-pistas">2. Palabras Clave / Pistas (Opcional)</label>
+                <textarea id="input-pistas" placeholder="Ej. Transistor, Capacitor, Resistencia (separadas por comas)"></textarea>
+            </div>
+
+            <button id="btn-subir-juego" class="btn-main btn-action-green">
+                <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.1rem;">cloud_upload</span> Publicar Configuración
+            </button>
+
+            <button id="btn-limpiar-trazos" class="btn-main btn-danger" style="margin-top: auto;">
                 <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.1rem;">mop</span> Limpiar Pizarra
             </button>
         </aside>
 
         <main class="canvas-area">
+            
+            <div id="pistas-display-area" class="pistas-container hidden">
+                <div class="pistas-title">
+                    <span class="material-symbols-outlined icon-blue" style="font-size: 1.2rem;">lightbulb</span> 
+                    PALABRAS CLAVE / PISTAS DISPONIBLES:
+                </div>
+                <div id="pistas-lista-tags" class="pistas-flex">
+                    </div>
+            </div>
+
             <div id="board-wrapper" class="board-container hidden">
                 <img id="crucigrama-img" src="" alt="Crucigrama Base">
                 <canvas id="canvas-interactivo"></canvas>
             </div>
-            <div id="placeholder-vacio" style="color: #64748b; text-align: center; font-weight: bold;">
-                <span class="material-symbols-outlined" style="font-size: 4rem; display: block; margin-bottom: 1rem;">cloud_sync</span>
-                Esperando que el profesor cargue el crucigrama en esta sala...
+            
+            <div id="placeholder-vacio" style="color: var(--brand-gray-dark); text-align: center; font-weight: 500;">
+                <span class="material-symbols-outlined icon-blue" style="font-size: 4rem; display: block; margin-bottom: 1rem;">sync_lock</span>
+                Esperando que el profesor inicie el crucigrama en esta sala...
             </div>
         </main>
 
@@ -189,13 +251,12 @@
     </div>
 
     <script type="module">
-        // Importación de módulos SDK web de Firebase v10
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { 
-            getFirestore, doc, setDoc, onSnapshot, updateDoc, arrayUnion, runTransaction 
+            getFirestore, doc, setDoc, onSnapshot, updateDoc, arrayUnion 
         } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-        // Configuración unificada de tu proyecto Firebase (Mantiene concordancia con tus credenciales base)
+        // Credenciales unificadas de tu proyecto Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBQdvDBqezHmwzYy5fXEi7M8sB8gzcFPKU",
             authDomain: "sistema-profe-puente.firebaseapp.com",
@@ -208,13 +269,14 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Variables de estado local de la sesión
+        // Estado de sesión
         let usuarioLocal = { nombre: "", rol: "estudiante", color: "#ff0000" };
         let salaId = "DEFAULT";
         let estaDibujando = false;
         let trazoActual = [];
+        let imagenBase64Temporal = ""; // Cache local de la imagen cargada antes de enviarla
 
-        // Referencias del DOM
+        // Referencias DOM
         const authScreen = document.getElementById('auth-screen');
         const formIngreso = document.getElementById('form-ingreso');
         const selectRol = document.getElementById('input-rol');
@@ -226,8 +288,12 @@
         const canvas = document.getElementById('canvas-interactivo');
         const ctx = canvas.getContext('2d');
         const listaLogs = document.getElementById('lista-logs');
+        
+        const pistasDisplayArea = document.getElementById('pistas-display-area');
+        const pistasListaTags = document.getElementById('pistas-lista-tags');
+        const inputPistas = document.getElementById('input-pistas');
+        const inputArchivo = document.getElementById('input-archivo-crucigrama');
 
-        // Mostrar u ocultar campo de contraseña según rol elegido
         selectRol.addEventListener('change', (e) => {
             if (e.target.value === 'profesor') {
                 wrapperClave.classList.remove('hidden');
@@ -236,18 +302,17 @@
             }
         });
 
-        // Generador de colores únicos y estables basados en el texto del nombre del alumno
+        // Generador de colores estables basados en el nombre
         function generarColorPorNombre(str) {
             let hash = 0;
             for (let i = 0; i < str.length; i++) {
                 hash = str.charCodeAt(i) + ((hash << 5) - hash);
             }
-            // Mapeo a formato HSL con alta saturación y brillo óptimo para simular un resaltador
             const h = Math.abs(hash % 360);
-            return `hsl(${h}, 95%, 65%)`; 
+            return `hsl(${h}, 95%, 60%)`; 
         }
 
-        // --- MANEJO DE AUTENTICACIÓN E INGRESO A LA SALA INDEPENDIENTE ---
+        // --- MANEJO DE ACCESO ---
         formIngreso.addEventListener('submit', async (e) => {
             e.preventDefault();
             const nombre = document.getElementById('input-nombre').value.trim();
@@ -265,8 +330,7 @@
             usuarioLocal.color = generarColorPorNombre(nombre);
             salaId = salaInput;
 
-            // Pintar datos en la interfaz
-            document.getElementById('label-user-activo').innerText = `Usuario: ${nombre} (${rol.toUpperCase()})`;
+            document.getElementById('label-user-activo').innerText = `Usuario: ${nombre}`;
             document.getElementById('label-sala-activa').innerText = salaId;
             authScreen.classList.add('hidden');
 
@@ -277,63 +341,73 @@
             conectarYEscucharSala();
         });
 
-        // --- CONEXIÓN EN TIEMPO REAL CON FIREBASE (POR SALA SEPARADA) ---
+        // --- CONEXIÓN EN TIEMPO REAL POR SALA ---
         function conectarYEscucharSala() {
             const salaRef = doc(db, "salas_crucigramas", salaId);
 
-            // Escuchar documento de sala en Firestore
             onSnapshot(salaRef, (docSnap) => {
                 if (!docSnap.exists()) {
-                    // Si la sala no existe en la BD, la inicializamos vacía
-                    setDoc(salaRef, { imagenBase64: "", trazos: [], historial: [] });
+                    setDoc(salaRef, { imagenBase64: "", pistas: [], trazos: [], historial: [] });
                     mostrarEstadoVacio();
                     return;
                 }
 
                 const data = docSnap.data();
 
+                // Renderizar Pistas si existen
+                if (data.pistas && data.pistas.length > 0) {
+                    pistasDisplayArea.classList.remove('hidden');
+                    pistasListaTags.innerHTML = "";
+                    data.pistas.forEach(pista => {
+                        const span = document.createElement('span');
+                        span.className = "pista-tag";
+                        span.innerText = pista;
+                        pistasListaTags.appendChild(span);
+                    });
+                } else {
+                    pistasDisplayArea.classList.add('hidden');
+                }
+
+                // Renderizar Tablero
                 if (data.imagenBase64 && data.imagenBase64 !== "") {
                     placeholderVacio.classList.add('hidden');
                     boardWrapper.classList.remove('hidden');
                     
-                    // Solo recargar origen de imagen si cambió
                     if (crucigramaImg.src !== data.imagenBase64) {
                         crucigramaImg.src = data.imagenBase64;
                         crucigramaImg.onload = () => ajustarDimensionesCanvas();
                     }
                     
-                    // Dibujar el repositorio de trazos en vivo compartidos
                     redibujarTrazosMuro(data.trazos || []);
                 } else {
                     mostrarEstadoVacio();
                 }
 
-                // Renderizar la barra lateral del historial de marcas cronológicas
                 actualizarHistorialPantalla(data.historial || []);
             });
         }
 
         function mostrarEstadoVacio() {
             boardWrapper.classList.add('hidden');
+            pistasDisplayArea.classList.add('hidden');
             placeholderVacio.classList.remove('hidden');
             crucigramaImg.src = "";
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
 
-        // --- CONTROL SENSITIVO DEL CANVAS (COMPATIBLE CON LAPTOPS Y CELULARES) ---
+        // --- CONTROL DEL CANVAS CANVAS ADAPTATIVO ---
         function ajustarDimensionesCanvas() {
-            canvas.width = crucigramaImg.clientWidth;
-            canvas.height = crucigramaImg.clientHeight;
+            if (crucigramaImg.clientWidth > 0) {
+                canvas.width = crucigramaImg.clientWidth;
+                canvas.height = crucigramaImg.clientHeight;
+            }
         }
         window.addEventListener('resize', ajustarDimensionesCanvas);
 
-        // Obtener coordenadas normalizadas considerando el factor de escala
         function obtenerCoordenadasRelativas(e) {
             const rect = canvas.getBoundingClientRect();
             const clienteX = e.touches ? e.touches[0].clientX : e.clientX;
             const clienteY = e.touches ? e.touches[0].clientY : e.clientY;
-            
-            // Guardamos valores relativos porcentuales (0 a 1) para que se dibuje idéntico en cualquier pantalla (Celular o PC)
             return {
                 x: (clienteX - rect.left) / rect.width,
                 y: (clienteY - rect.top) / rect.height
@@ -349,18 +423,15 @@
 
         function moverDibujo(e) {
             if (!estaDibujando) return;
-            e.preventDefault(); // Prevenir scroll en móviles al rayar
+            e.preventDefault(); 
             const coords = obtenerCoordenadasRelativas(e);
             trazoActual.push(coords);
-            
-            // Dibujado preventivo local inmediato para fluidez táctil
             dibujarLineaLocal(trazoActual, usuarioLocal.color);
         }
 
         async function finalizarDibujo() {
             if (!estaDibujando) return;
             estaDibujando = false;
-
             if (trazoActual.length < 2) return; 
 
             const salaRef = doc(db, "salas_crucigramas", salaId);
@@ -378,38 +449,32 @@
                 color: usuarioLocal.color
             };
 
-            // Transacción atómica en Firebase para subir trazo e historial acoplados
             try {
                 await updateDoc(salaRef, {
                     trazos: arrayUnion(nuevoRegistroTrazo),
                     historial: arrayUnion(nuevoLogHistorial)
                 });
             } catch (err) {
-                console.error("Error al sincronizar trazo: ", err);
+                console.error("Error al guardar trazo: ", err);
             }
         }
 
-        // Enlace de eventos duales (Mouse y Touch)
         canvas.addEventListener('mousedown', iniciarDibujo);
         canvas.addEventListener('mousemove', moverDibujo);
         canvas.addEventListener('mouseup', finalizarDibujo);
-
         canvas.addEventListener('touchstart', iniciarDibujo);
         canvas.addEventListener('touchmove', moverDibujo);
         canvas.addEventListener('touchend', finalizarDibujo);
 
-        // --- FUNCIONES DE RENDERIZADO GRÁFICO (DIBUJO) ---
         function dibujarLineaLocal(puntos, color) {
             if (puntos.length < 2) return;
             ctx.beginPath();
-            // Modo "multiply" o transparencia para simular el efecto de un marcador resaltador de texto
-            ctx.globalAlpha = 0.45;
+            ctx.globalAlpha = 0.45; // Efecto resaltador transparente
             ctx.strokeStyle = color;
             ctx.lineWidth = 14; 
             ctx.lineCap = "round";
             ctx.lineJoin = "round";
 
-            // Convertir de ratio relativo a pixeles reales del canvas actual
             ctx.moveTo(puntos[0].x * canvas.width, puntos[0].y * canvas.height);
             for (let i = 1; i < puntos.length; i++) {
                 ctx.lineTo(puntos[i].x * canvas.width, puntos[i].y * canvas.height);
@@ -419,44 +484,40 @@
 
         function redibujarTrazosMuro(trazos) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            trazos.forEach(t => {
-                dibujarLineaLocal(t.puntos, t.color);
-            });
+            trazos.forEach(t => dibujarLineaLocal(t.puntos, t.color));
         }
 
         function actualizarHistorialPantalla(historial) {
             listaLogs.innerHTML = "";
-            // Mostramos los últimos marcajes arriba (orden inverso)
             const historialInvertido = [...historial].reverse();
             
             historialInvertido.forEach(log => {
                 const card = document.createElement('div');
                 card.className = "log-card";
                 card.style.borderLeftColor = log.color;
-                
                 card.innerHTML = `
                     <div class="log-meta">
-                        <span>Marcado</span>
+                        <span>Resaltado</span>
                         <span>${log.hora}</span>
                     </div>
-                    <div><span class="log-user" style="color:${log.color}">${escapeHTML(log.usuario)}</span> encontró una palabra.</div>
+                    <div><span class="log-user" style="color:${log.color}">${escapeHTML(log.usuario)}</span> marcó el tablero.</div>
                 `;
                 listaLogs.appendChild(card);
             });
         }
 
-        // --- ACCIONES EXCLUSIVAS DEL PROFESOR (CARGAR / LIMPIAR) ---
-        const inputArchivo = document.getElementById('input-archivo-crucigrama');
+        // --- ACCIONES DEL DOCENTE ---
+        
+        // Procesar imagen localmente cuando se selecciona
         inputArchivo.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = async function(event) {
+            reader.onload = function(event) {
                 const img = new Image();
                 img.src = event.target.result;
-                img.onload = async function() {
-                    // Reducción estandarizada para acelerar la subida por canal Firestore
+                img.onload = function() {
                     const canvasVirtual = document.createElement('canvas');
                     const maxW = 800;
                     const ratio = maxW / img.width;
@@ -465,24 +526,51 @@
 
                     const vCtx = canvasVirtual.getContext('2d');
                     vCtx.drawImage(img, 0, 0, canvasVirtual.width, canvasVirtual.height);
-
-                    const base64Comprimido = canvasVirtual.toDataURL('image/jpeg', 0.70);
-                    
-                    // Subir a la sala correspondiente en Firebase
-                    const salaRef = doc(db, "salas_crucigramas", salaId);
-                    await updateDoc(salaRef, {
-                        imagenBase64: base64Comprimido,
-                        trazos: [],
-                        historial: []
-                    });
+                    imagenBase64Temporal = canvasVirtual.toDataURL('image/jpeg', 0.75);
                 };
             };
             reader.readAsDataURL(file);
         });
 
-        // Botón de vaciado completo de trazos de la sala
+        // Botón unificado para publicar imagen + pistas opcionales
+        document.getElementById('btn-subir-juego').addEventListener('click', async () => {
+            if (!imagenBase64Temporal && crucigramaImg.src === "") {
+                alert("Por favor, selecciona primero un archivo de imagen para el crucigrama.");
+                return;
+            }
+
+            // Procesar cadena de pistas opcionales convirtiéndola en un Array estructurado
+            const textoPistas = inputPistas.value.trim();
+            let arrayPistas = [];
+            if (textoPistas !== "") {
+                arrayPistas = textoPistas.split(',').map(p => p.trim()).filter(p => p !== "");
+            }
+
+            const salaRef = doc(db, "salas_crucigramas", salaId);
+            
+            const payload = {
+                pistas: arrayPistas,
+                trazos: [],
+                historial: []
+            };
+
+            // Si hay una nueva imagen cargada en caché, la incluimos
+            if (imagenBase64Temporal !== "") {
+                payload.imagenBase64 = imagenBase64Temporal;
+            }
+
+            try {
+                await updateDoc(salaRef, payload);
+                alert("¡Configuración de juego publicada con éxito!");
+                imagenBase64Temporal = ""; // Limpiar caché
+            } catch (err) {
+                console.error("Error al publicar juego: ", err);
+            }
+        });
+
+        // Limpiar pizarra por completo
         document.getElementById('btn-limpiar-trazos').addEventListener('click', async () => {
-            if (confirm("¿Quieres reiniciar el tablero y borrar todos los trazos de los estudiantes?")) {
+            if (confirm("¿Quieres limpiar por completo todos los trazos e historial de esta sala?")) {
                 const salaRef = doc(db, "salas_crucigramas", salaId);
                 await updateDoc(salaRef, {
                     trazos: [],
@@ -491,12 +579,13 @@
             }
         });
 
-        // Función de escape segura contra inyecciones de código
         function escapeHTML(str) {
             return str.replace(/[&<>'"]/g, tag => ({
                 '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
             }[tag] || tag));
         }
     </script>
+</body>
+</html>
 </body>
 </html>
