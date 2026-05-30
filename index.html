@@ -3,22 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sopa de Letras - Proyecto Puente</title>
+    <title>Sopa de Letras - Estudiante</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
         :root { --blue: #1a73e8; --green: #188038; --bg: #eef1f4; }
-        body { margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; background: var(--bg); font-family: sans-serif; overflow: hidden; }
+        body { margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; background: var(--bg); font-family: sans-serif; overflow: hidden; touch-action: none; }
         
         #viewport { flex: 1; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
         #canvas-wrapper { position: absolute; transform-origin: center center; cursor: grab; }
+        #tablero-img { display: block; pointer-events: none; }
         #canvas-interactivo { position: absolute; top: 0; left: 0; pointer-events: none; }
-        img { display: block; max-width: 90vw; height: auto; }
         
-        .floating-ui { position: fixed; bottom: 20px; right: 20px; display: flex; gap: 10px; z-index: 1000; }
-        .btn { width: 60px; height: 60px; border-radius: 50%; border: none; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; }
-        .btn.active { background: var(--blue); color: white; }
+        .floating-ui { position: fixed; bottom: 30px; right: 20px; display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
+        .btn { width: 65px; height: 65px; border-radius: 50%; border: none; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; }
+        .btn.active-nav { background: var(--blue); color: white; }
         .btn.active-mark { background: var(--green); color: white; }
-        #status-msg { position: absolute; top: 50%; width: 100%; text-align: center; color: #666; }
+        
+        #status-msg { position: absolute; top: 40%; width: 100%; text-align: center; color: #666; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -32,26 +33,28 @@
     </div>
 
     <div class="floating-ui">
-        <button id="btn-nav" class="btn active"><span class="material-symbols-outlined">pan_tool</span></button>
+        <button id="btn-nav" class="btn active-nav"><span class="material-symbols-outlined">pan_tool</span></button>
         <button id="btn-mark" class="btn"><span class="material-symbols-outlined">edit</span></button>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-        const db = getFirestore(initializeApp({
+        const firebaseConfig = {
             apiKey: "AIzaSyBQdvDBqezHmwzYy5fXEi7M8sB8gzcFPKU",
             projectId: "sistema-profe-puente"
-        }));
+        };
+        const db = getFirestore(initializeApp(firebaseConfig));
 
         const img = document.getElementById('tablero-img');
         const canvas = document.getElementById('canvas-interactivo');
         const ctx = canvas.getContext('2d');
         const wrapper = document.getElementById('canvas-wrapper');
-        let scale = 1, modo = 'navegar';
+        const viewport = document.getElementById('viewport');
+        let modo = 'navegar', scale = 1, panX = 0, panY = 0;
 
-        // 1. ESCUCHA DE DATOS (EL MOTOR DEL ESTUDIANTE)
+        // 1. ESCUCHA DE DATOS EN TIEMPO REAL
         onSnapshot(doc(db, "salas_crucigramas", "DEFAULT"), (docSnap) => {
             if (!docSnap.exists() || !docSnap.data().imagenBase64) return;
             
@@ -63,7 +66,7 @@
                 img.onload = () => {
                     canvas.width = img.naturalWidth;
                     canvas.height = img.naturalHeight;
-                    ajustarImagenAlViewport();
+                    ajustarImagenInicial();
                     renderTrazos(data.trazos || []);
                 };
             } else {
@@ -71,11 +74,14 @@
             }
         });
 
-        function ajustarImagenAlViewport() {
-            const vW = window.innerWidth * 0.9;
-            const vH = window.innerHeight * 0.9;
+        // 2. LÓGICA DE AUTO-AJUSTE (CONTAIN)
+        function ajustarImagenInicial() {
+            const vW = viewport.clientWidth * 0.95;
+            const vH = viewport.clientHeight * 0.95;
             scale = Math.min(vW / img.naturalWidth, vH / img.naturalHeight);
-            wrapper.style.transform = `scale(${scale})`;
+            panX = (viewport.clientWidth - (img.naturalWidth * scale)) / 2;
+            panY = (viewport.clientHeight - (img.naturalHeight * scale)) / 2;
+            wrapper.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
         }
 
         function renderTrazos(trazos) {
@@ -83,22 +89,48 @@
             trazos.forEach(t => {
                 ctx.beginPath();
                 ctx.strokeStyle = t.color;
-                ctx.lineWidth = 15;
+                ctx.lineWidth = 20;
+                ctx.lineCap = "round";
                 t.puntos.forEach((p, i) => i === 0 ? ctx.moveTo(p.x * canvas.width, p.y * canvas.height) : ctx.lineTo(p.x * canvas.width, p.y * canvas.height));
                 ctx.stroke();
             });
         }
 
-        // 2. CAMBIO DE MODO
+        // 3. INTERACCIÓN Y NAVEGACIÓN
+        let isDrawing = false, currentPath = [];
+        
+        canvas.addEventListener('mousedown', (e) => {
+            if (modo !== 'marcar') return;
+            isDrawing = true;
+            currentPath = [{x: e.offsetX/canvas.width, y: e.offsetY/canvas.height}];
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing) return;
+            currentPath.push({x: e.offsetX/canvas.width, y: e.offsetY/canvas.height});
+            renderTrazos([... (window.cache || []), {puntos: currentPath, color: 'red'}]);
+        });
+
+        canvas.addEventListener('mouseup', async () => {
+            if (!isDrawing) return;
+            isDrawing = false;
+            await updateDoc(doc(db, "salas_crucigramas", "DEFAULT"), {
+                trazos: arrayUnion({ color: 'red', puntos: currentPath })
+            });
+        });
+
+        // 4. CONTROL DE BOTONES
         document.getElementById('btn-nav').onclick = (e) => { 
             modo = 'navegar'; 
-            e.currentTarget.classList.add('active'); 
+            e.currentTarget.classList.add('active-nav'); 
             document.getElementById('btn-mark').classList.remove('active-mark');
+            canvas.style.pointerEvents = "none";
         };
         document.getElementById('btn-mark').onclick = (e) => { 
             modo = 'marcar'; 
             e.currentTarget.classList.add('active-mark'); 
-            document.getElementById('btn-nav').classList.remove('active');
+            document.getElementById('btn-nav').classList.remove('active-nav');
+            canvas.style.pointerEvents = "auto";
         };
     </script>
 </body>
