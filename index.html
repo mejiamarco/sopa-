@@ -33,6 +33,7 @@
             overflow: hidden;
         }
 
+        /* Pantalla de acceso */
         .auth-overlay {
             position: fixed;
             inset: 0;
@@ -62,6 +63,7 @@
 
         .auth-card h2 span { color: var(--brand-gold); }
 
+        /* Header */
         .app-header {
             background: var(--brand-black);
             height: 65px;
@@ -113,6 +115,7 @@
             cursor: pointer;
         }
 
+        /* Layout principal */
         .main-layout {
             display: flex;
             flex: 1;
@@ -121,6 +124,7 @@
             position: relative;
         }
 
+        /* Panel Profesor */
         .sidebar-profesor {
             width: 300px;
             background: white;
@@ -232,26 +236,17 @@
             height: 100%;
         }
 
-      .floating-mode-container {
-    position: absolute;
-    bottom: 80px;  /* antes era 20px, ahora más arriba */
-    right: 20px;
-    z-index: 150;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    align-items: flex-end;
-}
-
-/* ... */
-
-@media (max-width: 900px) {
-    /* ... otros estilos ... */
-    .floating-mode-container {
-        bottom: 70px;  /* también más arriba en móviles */
-        right: 16px;
-    }
-}
+        /* CONTROLES FLOTANTES ESTUDIANTE - POSICIÓN CORREGIDA (más arriba) */
+        .floating-mode-container {
+            position: absolute;
+            bottom: 100px;   /* Subido significativamente para que se vea en todos los móviles */
+            right: 20px;
+            z-index: 150;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: flex-end;
+        }
 
         .btn-mode-indicator {
             background: var(--brand-black);
@@ -262,7 +257,7 @@
             font-weight: bold;
             border: 1px solid var(--brand-gold);
             backdrop-filter: blur(4px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
         .student-actions-group {
@@ -277,7 +272,7 @@
             background: white;
             color: #475569;
             border: none;
-            box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.25);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -379,6 +374,7 @@
             100% { box-shadow: 0 0 0 0 rgba(24, 128, 56, 0); }
         }
 
+        /* RESPONSIVE MÓVIL - Ajuste de botones aún más arriba */
         @media (max-width: 900px) {
             .sidebar-profesor, .sidebar-historial {
                 position: absolute;
@@ -395,7 +391,14 @@
             }
             .mobile-toggle-btn { display: flex; }
             .btn-floating-action { width: 56px; height: 56px; }
-            .floating-mode-container { bottom: 16px; right: 16px; }
+            .floating-mode-container {
+                bottom: 90px;   /* Suficientemente arriba en móviles */
+                right: 16px;
+            }
+            .btn-mode-indicator {
+                font-size: 0.65rem;
+                padding: 4px 12px;
+            }
         }
     </style>
 </head>
@@ -406,7 +409,7 @@
             <form id="form-ingreso">
                 <div class="form-group"><label>Tu nombre</label><input type="text" id="input-nombre" required></div>
                 <div class="form-group"><label>Rol</label><select id="input-rol"><option value="estudiante">Estudiante</option><option value="profesor">Profesor</option></select></div>
-                <div class="form-group"><label>Código de Sala</label><input type="text" id="input-sala" placeholder="NUMERO DE GRUPO" required style="text-transform: uppercase;"></div>
+                <div class="form-group"><label>Código de Sala</label><input type="text" id="input-sala" placeholder="SALA-PROFE" required style="text-transform: uppercase;"></div>
                 <div id="wrapper-clave-profe" class="form-group hidden"><label>Contraseña</label><input type="password" id="input-clave"></div>
                 <button type="submit" class="btn-main btn-action-blue" style="width:100%;">Ingresar</button>
             </form>
@@ -457,6 +460,7 @@
                 </div>
             </div>
 
+            <!-- Controles flotantes estudiante (posición corregida) -->
             <div id="controles-flotantes-estudiante" class="floating-mode-container hidden">
                 <div id="indicador-modo-texto" class="btn-mode-indicator">✋ Modo: Navegar</div>
                 <div class="student-actions-group">
@@ -498,7 +502,7 @@
         let cacheTrazosServidor = [];
         let archivoSeleccionadoLocal = null;
 
-        // Variables de navegación mejoradas
+        // Variables de navegación
         let modoActual = "navegar";
         let scale = 1;
         let panX = 0, panY = 0;
@@ -530,15 +534,13 @@
         const scroller = document.getElementById('scroller-transformable');
         const sidebarHistorial = document.getElementById('sidebar-historial');
 
-        // Función para restringir el paneo y que nunca se pierda la imagen
+        // Función para restringir el paneo
         function clampPan() {
             if (!viewportPadre || imageNaturalWidth === 0) return;
             const wrapperW = viewportPadre.clientWidth;
             const wrapperH = viewportPadre.clientHeight;
             const scaledW = imageNaturalWidth * scale;
             const scaledH = imageNaturalHeight * scale;
-            // Máximo desplazamiento permitido: la imagen puede salirse hasta un 20% por cada lado,
-            // pero nunca más allá de eso para que siempre sea recuperable.
             const maxPanX = Math.max(0, (scaledW - wrapperW) / 2) + scaledW * 0.2;
             const minPanX = Math.min(0, (wrapperW - scaledW) / 2) - scaledW * 0.2;
             const maxPanY = Math.max(0, (scaledH - wrapperH) / 2) + scaledH * 0.2;
@@ -557,14 +559,11 @@
                 const wrapperW = viewportPadre.clientWidth;
                 const wrapperH = viewportPadre.clientHeight;
                 if (wrapperW === 0 || wrapperH === 0) return;
-                // Escala para que quepa completamente, dejando un pequeño margen (2px)
                 const scaleX = (wrapperW - 4) / imageNaturalWidth;
                 const scaleY = (wrapperH - 4) / imageNaturalHeight;
                 let newScale = Math.min(scaleX, scaleY);
-                // Permitir escala mínima de 0.3 para que se pueda reducir aún más si el usuario quiere
                 newScale = Math.min(2.5, Math.max(0.3, newScale));
                 scale = newScale;
-                // Centrar exactamente
                 const scaledW = imageNaturalWidth * scale;
                 const scaledH = imageNaturalHeight * scale;
                 panX = (wrapperW - scaledW) / 2;
@@ -574,7 +573,6 @@
             }
         }
 
-        // Zoom con punto central (para gestos)
         function aplicarZoomConPunto(nuevaEscala, centroX, centroY) {
             const oldScale = scale;
             if (nuevaEscala === oldScale) return;
@@ -627,7 +625,6 @@
                 boardWrapper.style.width = `${imageNaturalWidth}px`;
                 boardWrapper.style.height = `${imageNaturalHeight}px`;
                 redimensionarCanvasNatural();
-                // Ajuste automático para que se vea completa en pantalla
                 ajustarVistaAlContenedor();
             };
         }
@@ -705,7 +702,6 @@
         });
         window.addEventListener('mouseup', () => { estaMoviendoVista = false; });
 
-        // Touch: pan y pinch zoom (con límites)
         viewportPadre.addEventListener('touchstart', (e) => {
             if (modoActual === "navegar") {
                 if (e.touches.length === 1) {
@@ -747,7 +743,7 @@
         }, { passive: true });
         viewportPadre.addEventListener('touchend', () => { estaMoviendoVista = false; });
 
-        // Botones
+        // Botones de modo
         btnModoNavegar.addEventListener('click', () => {
             modoActual = "navegar";
             btnModoNavegar.classList.add('active-navegar');
