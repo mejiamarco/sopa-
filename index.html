@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crucigrama Interactivo - Proyecto Puente</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-blue: #1a73e8;
+            --primary-hover: #1557b0;
+            --bg-dark: #0f172a;
+            --border-color: #cbd5e1;
+            --text-dark: #1e293b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8fafc;
+            color: var(--text-dark);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* --- LOGIN / ACCESO --- */
+        .auth-overlay {
+            position: fixed; inset: 0; background: #0f172a; z-index: 3000;
+            display: flex; align-items: center; justify-content: center; padding: 1rem;
+        }
+        .auth-card {
+            background: white; padding: 2.5rem; border-radius: 20px; width: 100%; max-width: 450px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
+            animation: popIn 0.3s ease-out;
+        }
+        .auth-card h2 { font-family: 'Montserrat', sans-serif; margin-bottom: 1.5rem; color: var(--primary-blue); text-align: center; }
+        
+        /* --- HEADER --- */
+        .app-header {
+            background: white; height: 65px; border-bottom: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center; padding: 0 1.5rem; z-index: 100;
+        }
+        .logo-area { display: flex; align-items: center; gap: 10px; }
+        .logo-area h1 { font-family: 'Montserrat', sans-serif; font-size: 1.1rem; color: #c5a059; }
+        .session-info { display: flex; align-items: center; gap: 15px; font-size: 0.9rem; font-weight: bold; color: #64748b; }
+        .room-badge { background: #e2e8f0; padding: 4px 10px; border-radius: 8px; color: var(--primary-blue); }
+
+        /* --- LAYOUT PRINCIPAL --- */
+        .main-layout { display: flex; flex: 1; height: calc(100vh - 65px); overflow: hidden; }
+
+        /* Panel Izquierdo: Controles del Profesor */
+        .sidebar-profesor {
+            width: 280px; background: white; border-right: 1px solid var(--border-color);
+            padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;
+        }
+        .profesor-lock { border: 1px dashed #ef4444; padding: 1rem; border-radius: 12px; background: #fef2f2; }
+        .profesor-lock h3 { font-size: 0.85rem; color: #b91c1c; display: flex; align-items: center; gap: 6px; margin-bottom: 0.5rem; }
+
+        /* Panel Central: El Tablero de Juego */
+        .canvas-area {
+            flex: 1; padding: 1.5rem; display: flex; align-items: center; justify-content: center;
+            background-color: #f1f5f9; position: relative; overflow: auto;
+        }
+        .board-container {
+            position: relative; background: white; border-radius: 16px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #crucigrama-img { max-width: 100%; max-height: 75vh; display: block; user-select: none; -webkit-user-drag: none; }
+        #canvas-interactivo { position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: crosshair; }
+
+        /* Panel Derecho: Historial y Marcajes */
+        .sidebar-historial {
+            width: 320px; background: white; border-left: 1px solid var(--border-color);
+            display: flex; flex-direction: column;
+        }
+        .historial-header { padding: 1.2rem; border-bottom: 1px solid var(--border-color); font-family: 'Montserrat', sans-serif; font-size: 1rem; }
+        .historial-lista { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+        
+        /* Tarjetas de registro de jugadas */
+        .log-card {
+            padding: 0.75rem; border-radius: 10px; border-left: 5px solid #ccc;
+            background: #f8fafc; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            font-size: 0.85rem; display: flex; flex-direction: column; gap: 4px;
+            animation: slideIn 0.2s ease;
+        }
+        .log-meta { display: flex; justify-content: space-between; color: #64748b; font-size: 0.75rem; font-weight: bold; }
+        .log-user { font-weight: bold; }
+
+        /* UTILERÍA COMPONENTES FORM */
+        .form-group { margin-bottom: 1.25rem; display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 0.8rem; font-weight: 700; color: #475569; text-transform: uppercase; }
+        .form-group input, .form-group select { padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 10px; font-size: 0.95rem; }
+        .btn-main {
+            background: var(--primary-blue); color: white; border: none; padding: 0.75rem; 
+            border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; transition: background 0.2s;
+        }
+        .btn-main:hover { background: var(--primary-hover); }
+        .btn-danger { background: #dc2626; margin-top: auto; }
+        .btn-danger:hover { background: #b91c1c; }
+        .hidden { display: none !important; }
+
+        @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div id="auth-screen" class="auth-overlay">
+        <div class="auth-card">
+            <h2>PROGRAMA PUENTE<br><span style="font-size:0.9rem; color:#64748b;">Pizarra de Crucigramas en Vivo</span></h2>
+            <form id="form-ingreso">
+                <div class="form-group">
+                    <label for="input-nombre">Tu Nombre / Pseudónimo</label>
+                    <input type="text" id="input-nombre" placeholder="Ej. Juan Pérez" required>
+                </div>
+                <div class="form-group">
+                    <label for="input-rol">¿Quién eres?</label>
+                    <select id="input-rol">
+                        <option value="estudiante">Estudiante</option>
+                        <option value="profesor">Profesor / Moderador</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="input-sala">Código de Sala (Independiente)</label>
+                    <input type="text" id="input-sala" placeholder="Ej. FISICA-WARISATA" required style="text-transform: uppercase;">
+                </div>
+                <div id="wrapper-clave-profe" class="form-group hidden">
+                    <label for="input-clave">Contraseña de Profesor</label>
+                    <input type="password" id="input-clave" placeholder="Clave del docente">
+                </div>
+                <button type="submit" class="btn-main">Ingresar al Juego</button>
+            </form>
+        </div>
+    </div>
+
+    <header class="app-header">
+        <div class="logo-area">
+            <span class="material-symbols-outlined" style="color:var(--primary-blue)">extension</span>
+            <h1>CRUCIGRAMA INTERACTIVO</h1>
+        </div>
+        <div class="session-info">
+            <span id="label-user-activo">Usuario: ---</span>
+            <span class="room-badge">Sala: <span id="label-sala-activa">---</span></span>
+        </div>
+    </header>
+
+    <div class="main-layout">
+        
+        <aside id="panel-profesor" class="sidebar-profesor hidden">
+            <div class="profesor-lock">
+                <h3><span class="material-symbols-outlined" style="font-size:1.1rem">admin_panel_settings</span> PANEL DOCENTE</h3>
+                <p style="font-size: 0.75rem; color: #475569;">Control exclusivo para cargar tableros y limpiar la pizarra actual.</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Cargar Nuevo Crucigrama</label>
+                <input type="file" id="input-archivo-crucigrama" accept="image/*">
+            </div>
+
+            <button id="btn-limpiar-trazos" class="btn-main btn-danger">
+                <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.1rem;">mop</span> Limpiar Pizarra
+            </button>
+        </aside>
+
+        <main class="canvas-area">
+            <div id="board-wrapper" class="board-container hidden">
+                <img id="crucigrama-img" src="" alt="Crucigrama Base">
+                <canvas id="canvas-interactivo"></canvas>
+            </div>
+            <div id="placeholder-vacio" style="color: #64748b; text-align: center; font-weight: bold;">
+                <span class="material-symbols-outlined" style="font-size: 4rem; display: block; margin-bottom: 1rem;">cloud_sync</span>
+                Esperando que el profesor cargue el crucigrama en esta sala...
+            </div>
+        </main>
+
+        <aside class="sidebar-historial">
+            <div class="historial-header">
+                <h3>Historial de Marcas</h3>
+            </div>
+            <div id="lista-logs" class="historial-lista">
+                </div>
+        </aside>
+    </div>
+
+    <script type="module">
+        // Importación de módulos SDK web de Firebase v10
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { 
+            getFirestore, doc, setDoc, onSnapshot, updateDoc, arrayUnion, runTransaction 
+        } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        // Configuración unificada de tu proyecto Firebase (Mantiene concordancia con tus credenciales base)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBQdvDBqezHmwzYy5fXEi7M8sB8gzcFPKU",
+            authDomain: "sistema-profe-puente.firebaseapp.com",
+            projectId: "sistema-profe-puente",
+            storageBucket: "sistema-profe-puente.appspot.com",
+            messagingSenderId: "383416484351",
+            appId: "1:383416484351:web:ca37a09d3bdf8fae8a6088"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Variables de estado local de la sesión
+        let usuarioLocal = { nombre: "", rol: "estudiante", color: "#ff0000" };
+        let salaId = "DEFAULT";
+        let estaDibujando = false;
+        let trazoActual = [];
+
+        // Referencias del DOM
+        const authScreen = document.getElementById('auth-screen');
+        const formIngreso = document.getElementById('form-ingreso');
+        const selectRol = document.getElementById('input-rol');
+        const wrapperClave = document.getElementById('wrapper-clave-profe');
+        const panelProfesor = document.getElementById('panel-profesor');
+        const boardWrapper = document.getElementById('board-wrapper');
+        const placeholderVacio = document.getElementById('placeholder-vacio');
+        const crucigramaImg = document.getElementById('crucigrama-img');
+        const canvas = document.getElementById('canvas-interactivo');
+        const ctx = canvas.getContext('2d');
+        const listaLogs = document.getElementById('lista-logs');
+
+        // Mostrar u ocultar campo de contraseña según rol elegido
+        selectRol.addEventListener('change', (e) => {
+            if (e.target.value === 'profesor') {
+                wrapperClave.classList.remove('hidden');
+            } else {
+                wrapperClave.classList.add('hidden');
+            }
+        });
+
+        // Generador de colores únicos y estables basados en el texto del nombre del alumno
+        function generarColorPorNombre(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            // Mapeo a formato HSL con alta saturación y brillo óptimo para simular un resaltador
+            const h = Math.abs(hash % 360);
+            return `hsl(${h}, 95%, 65%)`; 
+        }
+
+        // --- MANEJO DE AUTENTICACIÓN E INGRESO A LA SALA INDEPENDIENTE ---
+        formIngreso.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nombre = document.getElementById('input-nombre').value.trim();
+            const rol = selectRol.value;
+            const salaInput = document.getElementById('input-sala').value.trim().toUpperCase();
+            const clave = document.getElementById('input-clave').value;
+
+            if (rol === 'profesor' && clave !== 'mejia') {
+                alert("Contraseña de moderador incorrecta.");
+                return;
+            }
+
+            usuarioLocal.nombre = nombre;
+            usuarioLocal.rol = rol;
+            usuarioLocal.color = generarColorPorNombre(nombre);
+            salaId = salaInput;
+
+            // Pintar datos en la interfaz
+            document.getElementById('label-user-activo').innerText = `Usuario: ${nombre} (${rol.toUpperCase()})`;
+            document.getElementById('label-sala-activa').innerText = salaId;
+            authScreen.classList.add('hidden');
+
+            if (rol === 'profesor') {
+                panelProfesor.classList.remove('hidden');
+            }
+
+            conectarYEscucharSala();
+        });
+
+        // --- CONEXIÓN EN TIEMPO REAL CON FIREBASE (POR SALA SEPARADA) ---
+        function conectarYEscucharSala() {
+            const salaRef = doc(db, "salas_crucigramas", salaId);
+
+            // Escuchar documento de sala en Firestore
+            onSnapshot(salaRef, (docSnap) => {
+                if (!docSnap.exists()) {
+                    // Si la sala no existe en la BD, la inicializamos vacía
+                    setDoc(salaRef, { imagenBase64: "", trazos: [], historial: [] });
+                    mostrarEstadoVacio();
+                    return;
+                }
+
+                const data = docSnap.data();
+
+                if (data.imagenBase64 && data.imagenBase64 !== "") {
+                    placeholderVacio.classList.add('hidden');
+                    boardWrapper.classList.remove('hidden');
+                    
+                    // Solo recargar origen de imagen si cambió
+                    if (crucigramaImg.src !== data.imagenBase64) {
+                        crucigramaImg.src = data.imagenBase64;
+                        crucigramaImg.onload = () => ajustarDimensionesCanvas();
+                    }
+                    
+                    // Dibujar el repositorio de trazos en vivo compartidos
+                    redibujarTrazosMuro(data.trazos || []);
+                } else {
+                    mostrarEstadoVacio();
+                }
+
+                // Renderizar la barra lateral del historial de marcas cronológicas
+                actualizarHistorialPantalla(data.historial || []);
+            });
+        }
+
+        function mostrarEstadoVacio() {
+            boardWrapper.classList.add('hidden');
+            placeholderVacio.classList.remove('hidden');
+            crucigramaImg.src = "";
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // --- CONTROL SENSITIVO DEL CANVAS (COMPATIBLE CON LAPTOPS Y CELULARES) ---
+        function ajustarDimensionesCanvas() {
+            canvas.width = crucigramaImg.clientWidth;
+            canvas.height = crucigramaImg.clientHeight;
+        }
+        window.addEventListener('resize', ajustarDimensionesCanvas);
+
+        // Obtener coordenadas normalizadas considerando el factor de escala
+        function obtenerCoordenadasRelativas(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clienteX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clienteY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            // Guardamos valores relativos porcentuales (0 a 1) para que se dibuje idéntico en cualquier pantalla (Celular o PC)
+            return {
+                x: (clienteX - rect.left) / rect.width,
+                y: (clienteY - rect.top) / rect.height
+            };
+        }
+
+        function iniciarDibujo(e) {
+            estaDibujando = true;
+            trazoActual = [];
+            const coords = obtenerCoordenadasRelativas(e);
+            trazoActual.push(coords);
+        }
+
+        function moverDibujo(e) {
+            if (!estaDibujando) return;
+            e.preventDefault(); // Prevenir scroll en móviles al rayar
+            const coords = obtenerCoordenadasRelativas(e);
+            trazoActual.push(coords);
+            
+            // Dibujado preventivo local inmediato para fluidez táctil
+            dibujarLineaLocal(trazoActual, usuarioLocal.color);
+        }
+
+        async function finalizarDibujo() {
+            if (!estaDibujando) return;
+            estaDibujando = false;
+
+            if (trazoActual.length < 2) return; 
+
+            const salaRef = doc(db, "salas_crucigramas", salaId);
+            const horaMarcado = new Date().toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+            const nuevoRegistroTrazo = {
+                usuario: usuarioLocal.nombre,
+                color: usuarioLocal.color,
+                puntos: trazoActual
+            };
+
+            const nuevoLogHistorial = {
+                usuario: usuarioLocal.nombre,
+                hora: horaMarcado,
+                color: usuarioLocal.color
+            };
+
+            // Transacción atómica en Firebase para subir trazo e historial acoplados
+            try {
+                await updateDoc(salaRef, {
+                    trazos: arrayUnion(nuevoRegistroTrazo),
+                    historial: arrayUnion(nuevoLogHistorial)
+                });
+            } catch (err) {
+                console.error("Error al sincronizar trazo: ", err);
+            }
+        }
+
+        // Enlace de eventos duales (Mouse y Touch)
+        canvas.addEventListener('mousedown', iniciarDibujo);
+        canvas.addEventListener('mousemove', moverDibujo);
+        canvas.addEventListener('mouseup', finalizarDibujo);
+
+        canvas.addEventListener('touchstart', iniciarDibujo);
+        canvas.addEventListener('touchmove', moverDibujo);
+        canvas.addEventListener('touchend', finalizarDibujo);
+
+        // --- FUNCIONES DE RENDERIZADO GRÁFICO (DIBUJO) ---
+        function dibujarLineaLocal(puntos, color) {
+            if (puntos.length < 2) return;
+            ctx.beginPath();
+            // Modo "multiply" o transparencia para simular el efecto de un marcador resaltador de texto
+            ctx.globalAlpha = 0.45;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 14; 
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+
+            // Convertir de ratio relativo a pixeles reales del canvas actual
+            ctx.moveTo(puntos[0].x * canvas.width, puntos[0].y * canvas.height);
+            for (let i = 1; i < puntos.length; i++) {
+                ctx.lineTo(puntos[i].x * canvas.width, puntos[i].y * canvas.height);
+            }
+            ctx.stroke();
+        }
+
+        function redibujarTrazosMuro(trazos) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            trazos.forEach(t => {
+                dibujarLineaLocal(t.puntos, t.color);
+            });
+        }
+
+        function actualizarHistorialPantalla(historial) {
+            listaLogs.innerHTML = "";
+            // Mostramos los últimos marcajes arriba (orden inverso)
+            const historialInvertido = [...historial].reverse();
+            
+            historialInvertido.forEach(log => {
+                const card = document.createElement('div');
+                card.className = "log-card";
+                card.style.borderLeftColor = log.color;
+                
+                card.innerHTML = `
+                    <div class="log-meta">
+                        <span>Marcado</span>
+                        <span>${log.hora}</span>
+                    </div>
+                    <div><span class="log-user" style="color:${log.color}">${escapeHTML(log.usuario)}</span> encontró una palabra.</div>
+                `;
+                listaLogs.appendChild(card);
+            });
+        }
+
+        // --- ACCIONES EXCLUSIVAS DEL PROFESOR (CARGAR / LIMPIAR) ---
+        const inputArchivo = document.getElementById('input-archivo-crucigrama');
+        inputArchivo.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(event) {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = async function() {
+                    // Reducción estandarizada para acelerar la subida por canal Firestore
+                    const canvasVirtual = document.createElement('canvas');
+                    const maxW = 800;
+                    const ratio = maxW / img.width;
+                    canvasVirtual.width = maxW;
+                    canvasVirtual.height = img.height * ratio;
+
+                    const vCtx = canvasVirtual.getContext('2d');
+                    vCtx.drawImage(img, 0, 0, canvasVirtual.width, canvasVirtual.height);
+
+                    const base64Comprimido = canvasVirtual.toDataURL('image/jpeg', 0.70);
+                    
+                    // Subir a la sala correspondiente en Firebase
+                    const salaRef = doc(db, "salas_crucigramas", salaId);
+                    await updateDoc(salaRef, {
+                        imagenBase64: base64Comprimido,
+                        trazos: [],
+                        historial: []
+                    });
+                };
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Botón de vaciado completo de trazos de la sala
+        document.getElementById('btn-limpiar-trazos').addEventListener('click', async () => {
+            if (confirm("¿Quieres reiniciar el tablero y borrar todos los trazos de los estudiantes?")) {
+                const salaRef = doc(db, "salas_crucigramas", salaId);
+                await updateDoc(salaRef, {
+                    trazos: [],
+                    historial: []
+                });
+            }
+        });
+
+        // Función de escape segura contra inyecciones de código
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, tag => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+            }[tag] || tag));
+        }
+    </script>
+</body>
+</html>
