@@ -33,7 +33,6 @@
             overflow: hidden;
         }
 
-        /* Pantalla de acceso */
         .auth-overlay {
             position: fixed;
             inset: 0;
@@ -63,7 +62,6 @@
 
         .auth-card h2 span { color: var(--brand-gold); }
 
-        /* Header */
         .app-header {
             background: var(--brand-black);
             height: 65px;
@@ -115,7 +113,6 @@
             cursor: pointer;
         }
 
-        /* Layout principal */
         .main-layout {
             display: flex;
             flex: 1;
@@ -124,7 +121,6 @@
             position: relative;
         }
 
-        /* Panel Profesor */
         .sidebar-profesor {
             width: 300px;
             background: white;
@@ -140,7 +136,6 @@
 
         .sidebar-profesor.mobile-open { transform: translateX(0); }
 
-        /* Área central: visor táctil mejorado */
         .canvas-area {
             flex: 1;
             padding: 0.8rem;
@@ -181,7 +176,6 @@
             font-weight: 600;
         }
 
-        /* Viewport que contiene el tablero con zoom+pan */
         .viewport-wrapper {
             flex: 1;
             width: 100%;
@@ -238,7 +232,6 @@
             height: 100%;
         }
 
-        /* Controles flotantes estudiante */
         .floating-mode-container {
             position: absolute;
             bottom: 20px;
@@ -302,7 +295,6 @@
             color: white;
         }
 
-        /* Panel historial */
         .sidebar-historial {
             width: 280px;
             background: white;
@@ -340,7 +332,6 @@
             font-size: 0.75rem;
         }
 
-        /* Formularios */
         .form-group {
             margin-bottom: 0.7rem;
             display: flex;
@@ -529,18 +520,19 @@
         const scroller = document.getElementById('scroller-transformable');
         const sidebarHistorial = document.getElementById('sidebar-historial');
 
-        // --- FUNCIONES DE AJUSTE Y LIMITACIÓN DE PANNING ---
+        // Función para restringir el paneo y que nunca se pierda la imagen
         function clampPan() {
             if (!viewportPadre || imageNaturalWidth === 0) return;
             const wrapperW = viewportPadre.clientWidth;
             const wrapperH = viewportPadre.clientHeight;
             const scaledW = imageNaturalWidth * scale;
             const scaledH = imageNaturalHeight * scale;
-            // Permitir que la imagen salga hasta un 30% fuera de la vista, pero sin perderla totalmente
-            const maxPanX = Math.max(0, (scaledW - wrapperW) / 2) + scaledW * 0.15;
-            const minPanX = Math.min(0, (wrapperW - scaledW) / 2) - scaledW * 0.15;
-            const maxPanY = Math.max(0, (scaledH - wrapperH) / 2) + scaledH * 0.15;
-            const minPanY = Math.min(0, (wrapperH - scaledH) / 2) - scaledH * 0.15;
+            // Máximo desplazamiento permitido: la imagen puede salirse hasta un 20% por cada lado,
+            // pero nunca más allá de eso para que siempre sea recuperable.
+            const maxPanX = Math.max(0, (scaledW - wrapperW) / 2) + scaledW * 0.2;
+            const minPanX = Math.min(0, (wrapperW - scaledW) / 2) - scaledW * 0.2;
+            const maxPanY = Math.max(0, (scaledH - wrapperH) / 2) + scaledH * 0.2;
+            const minPanY = Math.min(0, (wrapperH - scaledH) / 2) - scaledH * 0.2;
             panX = Math.min(maxPanX, Math.max(minPanX, panX));
             panY = Math.min(maxPanY, Math.max(minPanY, panY));
         }
@@ -549,19 +541,20 @@
             scroller.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
         }
 
-        // Función clave: ajustar la imagen al viewport (fit) manteniendo relación de aspecto
+        // Ajuste completo: la imagen debe caber íntegra dentro del viewport
         function ajustarVistaAlContenedor() {
             if (!boardWrapper.classList.contains('hidden') && imageNaturalWidth > 0 && imageNaturalHeight > 0) {
                 const wrapperW = viewportPadre.clientWidth;
                 const wrapperH = viewportPadre.clientHeight;
                 if (wrapperW === 0 || wrapperH === 0) return;
-                // Calcular escala para que entre completamente
-                const scaleX = wrapperW / imageNaturalWidth;
-                const scaleY = wrapperH / imageNaturalHeight;
+                // Escala para que quepa completamente, dejando un pequeño margen (2px)
+                const scaleX = (wrapperW - 4) / imageNaturalWidth;
+                const scaleY = (wrapperH - 4) / imageNaturalHeight;
                 let newScale = Math.min(scaleX, scaleY);
-                newScale = Math.min(3, Math.max(0.4, newScale)); // rango aceptable
+                // Permitir escala mínima de 0.3 para que se pueda reducir aún más si el usuario quiere
+                newScale = Math.min(2.5, Math.max(0.3, newScale));
                 scale = newScale;
-                // Centrar la imagen en el viewport
+                // Centrar exactamente
                 const scaledW = imageNaturalWidth * scale;
                 const scaledH = imageNaturalHeight * scale;
                 panX = (wrapperW - scaledW) / 2;
@@ -571,36 +564,22 @@
             }
         }
 
-        // Zoom incremental con punto central (opcional, pero se usa desde botones si se desea)
-        function zoomEn(centroRelativo) {
+        // Zoom con punto central (para gestos)
+        function aplicarZoomConPunto(nuevaEscala, centroX, centroY) {
             const oldScale = scale;
-            let newScale = Math.min(4, scale * 1.2);
-            if (newScale === oldScale) return;
-            scale = newScale;
-            // Ajustar pan para mantener el punto bajo el cursor (si se pasa)
-            if (centroRelativo && viewportPadre) {
-                const wrapperRect = viewportPadre.getBoundingClientRect();
-                const px = centroRelativo.clientX - wrapperRect.left;
-                const py = centroRelativo.clientY - wrapperRect.top;
-                const xAnt = (px - panX) / oldScale;
-                const yAnt = (py - panY) / oldScale;
-                panX = px - xAnt * scale;
-                panY = py - yAnt * scale;
-            }
+            if (nuevaEscala === oldScale) return;
+            const wrapperRect = viewportPadre.getBoundingClientRect();
+            const px = centroX - wrapperRect.left;
+            const py = centroY - wrapperRect.top;
+            const xAnt = (px - panX) / oldScale;
+            const yAnt = (py - panY) / oldScale;
+            scale = Math.min(3.5, Math.max(0.3, nuevaEscala));
+            panX = px - xAnt * scale;
+            panY = py - yAnt * scale;
             clampPan();
             aplicarTransformaciones();
         }
 
-        function zoomOut() {
-            const oldScale = scale;
-            let newScale = Math.max(0.4, scale / 1.2);
-            if (newScale === oldScale) return;
-            scale = newScale;
-            clampPan();
-            aplicarTransformaciones();
-        }
-
-        // Redimensionar canvas y redibujar trazos
         function redimensionarCanvasNatural() {
             if (!crucigramaImg.complete || imageNaturalWidth === 0) return;
             canvas.width = imageNaturalWidth;
@@ -630,7 +609,6 @@
             ctx.stroke();
         }
 
-        // Inicialización de la imagen al cargar desde Firebase
         function inicializarBoardConImagen(urlImagen) {
             crucigramaImg.src = urlImagen;
             crucigramaImg.onload = () => {
@@ -639,6 +617,7 @@
                 boardWrapper.style.width = `${imageNaturalWidth}px`;
                 boardWrapper.style.height = `${imageNaturalHeight}px`;
                 redimensionarCanvasNatural();
+                // Ajuste automático para que se vea completa en pantalla
                 ajustarVistaAlContenedor();
             };
         }
@@ -652,7 +631,7 @@
             imageNaturalWidth = 0;
         }
 
-        // --- EVENTOS DE DIBUJO (marcar) ---
+        // --- DIBUJO (marcado) ---
         function obtenerPuntoRelativoCanvas(e) {
             const rect = canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -678,7 +657,7 @@
             dibujarLinea(trazoActual, usuarioLocal.color);
         }
 
-        async finalizarTrazo() {
+        async function finalizarTrazo() {
             if (!estaDibujando || modoActual !== "marcar") return;
             estaDibujando = false;
             if (!trazoActual || trazoActual.length < 2) return;
@@ -698,7 +677,7 @@
         canvas.addEventListener('touchmove', dibujarTrazoLocal, { passive: false });
         canvas.addEventListener('touchend', finalizarTrazo);
 
-        // --- EVENTOS DE NAVEGACIÓN (pan y zoom) ---
+        // --- NAVEGACIÓN (pan y zoom) ---
         viewportPadre.addEventListener('mousedown', (e) => {
             if (modoActual === "navegar") {
                 estaMoviendoVista = true;
@@ -716,7 +695,7 @@
         });
         window.addEventListener('mouseup', () => { estaMoviendoVista = false; });
 
-        // Touch: pan y pinch zoom
+        // Touch: pan y pinch zoom (con límites)
         viewportPadre.addEventListener('touchstart', (e) => {
             if (modoActual === "navegar") {
                 if (e.touches.length === 1) {
@@ -745,21 +724,12 @@
                         e.touches[0].clientY - e.touches[1].clientY
                     );
                     const factor = distActual / distInicialPinch;
-                    const newScale = Math.min(4, Math.max(0.4, scale * factor));
+                    let newScale = scale * factor;
+                    newScale = Math.min(3.5, Math.max(0.3, newScale));
                     if (newScale !== scale) {
-                        // Calcular punto medio para zoom centrado
                         const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
                         const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-                        const wrapperRect = viewportPadre.getBoundingClientRect();
-                        const px = centerX - wrapperRect.left;
-                        const py = centerY - wrapperRect.top;
-                        const xAnt = (px - panX) / scale;
-                        const yAnt = (py - panY) / scale;
-                        scale = newScale;
-                        panX = px - xAnt * scale;
-                        panY = py - yAnt * scale;
-                        clampPan();
-                        aplicarTransformaciones();
+                        aplicarZoomConPunto(newScale, centerX, centerY);
                     }
                     distInicialPinch = distActual;
                 }
@@ -767,7 +737,7 @@
         }, { passive: true });
         viewportPadre.addEventListener('touchend', () => { estaMoviendoVista = false; });
 
-        // Botones de modo y reset
+        // Botones
         btnModoNavegar.addEventListener('click', () => {
             modoActual = "navegar";
             btnModoNavegar.classList.add('active-navegar');
@@ -780,7 +750,9 @@
             btnModoNavegar.classList.remove('active-navegar');
             indicadorModo.innerHTML = "✏️ Modo: Marcar palabra";
         });
-        btnResetVista.addEventListener('click', () => { ajustarVistaAlContenedor(); });
+        btnResetVista.addEventListener('click', () => {
+            ajustarVistaAlContenedor();
+        });
 
         window.addEventListener('resize', () => {
             if (boardWrapper && !boardWrapper.classList.contains('hidden')) ajustarVistaAlContenedor();
@@ -839,7 +811,7 @@
             });
         }
 
-        // --- LÓGICA PROFESOR: subir archivos y publicar ---
+        // --- LÓGICA PROFESOR ---
         const inputFile = document.getElementById('input-archivo-crucigrama');
         const boxConfirm = document.getElementById('box-confirmacion-archivo');
         const fileNameSpan = document.getElementById('nombre-archivo-pendiente');
